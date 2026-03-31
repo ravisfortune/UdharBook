@@ -15,6 +15,9 @@ import ContactDetailScreen from '@screens/ContactDetailScreen';
 import AddTransactionScreen from '@screens/AddTransactionScreen';
 import AddContactScreen from '@screens/AddContactScreen';
 import SplitScreen from '@screens/SplitScreen';
+import SplitBillScreen from '@screens/SplitBillScreen';
+import SplitGroupScreen from '@screens/SplitGroupScreen';
+import SplitLoanScreen from '@screens/SplitLoanScreen';
 import SettingsScreen from '@screens/SettingsScreen';
 
 export type RootStackParamList = {
@@ -23,6 +26,9 @@ export type RootStackParamList = {
   AddTransaction: { contactId?: string; contactName?: string };
   AddContact: undefined;
   Split: undefined;
+  SplitBill: undefined;
+  SplitGroup: undefined;
+  SplitLoan: undefined;
   Settings: undefined;
 };
 
@@ -169,6 +175,21 @@ export default function AppNavigator() {
         <Stack.Screen
           name="Split"
           component={SplitScreen}
+          options={{ animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="SplitBill"
+          component={SplitBillScreen}
+          options={{ animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="SplitGroup"
+          component={SplitGroupScreen}
+          options={{ animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="SplitLoan"
+          component={SplitLoanScreen}
           options={{ animation: 'slide_from_right' }}
         />
         <Stack.Screen
