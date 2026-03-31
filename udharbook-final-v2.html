@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>UdharBook</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=Fredoka+One&family=Nunito:wght@400;700;800;900&family=Baloo+2:wght@400;700;800&family=DM+Serif+Display&family=Righteous&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;overflow-x:hidden;}
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;font-size:22px;line-height:1;}
+.fill{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;}
+
+/* ══════════════════════════════════════
+   THEME TOKENS
+══════════════════════════════════════ */
+:root{
+  --bg:#f7f9fc;--card:#fff;--ink:#191c1e;
+  --p:#000666;--p2:#1a237e;--p-fix:#e0e0ff;
+  --s:#7e5700;--s-con:#feb300;--s-fix:#ffdeac;
+  --green:#5aa958;--green-bg:#003909;
+  --red:#93000a;--red-bg:#ffdad6;
+  --muted:#454652;--border:#c6c5d4;
+  --surf-low:#f2f4f7;--surf-high:#e6e8eb;--surf-lowest:#fff;
+  --font-h:'Manrope',sans-serif;--font-b:'Inter',sans-serif;
+  --r:1rem;--r-lg:2rem;--r-xl:3rem;
+  --shadow:0 12px 32px rgba(0,7,103,0.06);
+  --shadow-md:0 4px 16px rgba(0,7,103,0.1);
+}
+
+/* ══════ THEME CLASSES ══════ */
+
+/* 1. Ledger-Luxe (Stitch — DEFAULT) */
+body.t-luxe{background:var(--bg);--font-h:'Manrope',sans-serif;--font-b:'Inter',sans-serif;}
+
+/* 2. Cartoon */
+body.t-cartoon{
+  background:linear-gradient(135deg,#667eea,#f093fb,#f5576c);
+  --bg:#FFF8F0;--card:#fff;--ink:#1a1a2e;
+  --p:#FFD93D;--p2:#FF8C42;--green:#00C77A;--red:#FF6B6B;
+  --muted:#999;--surf-low:#f5f2ee;--surf-lowest:#fff;
+  --font-h:'Fredoka One',cursive;--font-b:'Nunito',sans-serif;
+  --shadow:3px 3px 0 #1a1a2e;--r:1.25rem;
+}
+
+/* 3. Midnight */
+body.t-midnight{
+  background:#0D0D14;
+  --bg:#13131A;--card:#1E1E2C;--ink:#E8E8F0;
+  --p:#7C3AED;--p2:#5B21B6;--green:#10B981;--red:#EF4444;
+  --muted:#6B7280;--surf-low:#1a1a28;--surf-lowest:#1E1E2C;
+  --font-h:'Poppins',sans-serif;--font-b:'Inter',sans-serif;
+  --shadow:0 8px 32px rgba(124,58,237,0.25);
+}
+
+/* 4. Saffron */
+body.t-saffron{
+  background:linear-gradient(160deg,#FF6B00,#DC2F02);
+  --bg:#FFF9F0;--card:#fff;--ink:#3D1C02;
+  --p:#FF6B00;--p2:#E85D04;--green:#2D6A4F;--red:#C1121F;
+  --muted:#9C6644;--surf-low:#fef3e8;--surf-lowest:#fff;
+  --font-h:'Baloo 2',cursive;--font-b:'Poppins',sans-serif;
+  --shadow:0 8px 24px rgba(255,107,0,0.18);
+}
+
+/* 5. Glass */
+body.t-glass{
+  background:linear-gradient(135deg,#1a0533,#0d1f3c,#0a2818);
+  --bg:#0f0c1a;--card:rgba(255,255,255,0.07);--ink:#fff;
+  --p:#FFD93D;--p2:#FF8C42;--green:#00FF96;--red:#FF5064;
+  --muted:rgba(255,255,255,0.45);--surf-low:rgba(255,255,255,0.04);--surf-lowest:rgba(255,255,255,0.07);
+  --font-h:'Baloo 2',cursive;--font-b:'Inter',sans-serif;
+  --shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+
+/* 6. Neu */
+body.t-neu{
+  background:linear-gradient(135deg,#c8d6e5,#dfe6ed);
+  --bg:#E4EBF5;--card:#E4EBF5;--ink:#2d3561;
+  --p:#4A90D9;--p2:#2d3561;--green:#00a86b;--red:#e05050;
+  --muted:#9baab8;--surf-low:#dde5f0;--surf-lowest:#eef2f8;
+  --font-h:'DM Serif Display',serif;--font-b:'Inter',sans-serif;
+  --shadow:5px 5px 15px #b8c5d6,-3px -3px 10px rgba(255,255,255,0.7);
+}
+
+/* 7. Minimal */
+body.t-minimal{
+  background:#F2F2F7;
+  --bg:#F2F2F7;--card:#fff;--ink:#1C1C1E;
+  --p:#007AFF;--p2:#5856D6;--green:#34C759;--red:#FF3B30;
+  --muted:#8E8E93;--surf-low:#F2F2F7;--surf-lowest:#fff;
+  --font-h:'Inter',sans-serif;--font-b:'Inter',sans-serif;
+  --shadow:0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* ══════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════ */
+body{min-height:100vh;font-family:var(--font-b);color:var(--ink);transition:background 0.5s ease;}
+.phone{
+  width:390px;max-width:100%;
+  background:var(--bg);border-radius:44px;overflow:hidden;
+  position:relative;transition:all 0.4s ease;
+  margin:0 auto;
+}
+body.t-luxe .phone{box-shadow:0 40px 100px rgba(0,7,103,0.15);}
+body.t-cartoon .phone{border:3px solid #1a1a2e;box-shadow:0 40px 100px rgba(0,0,0,0.4),8px 8px 0 #1a1a2e;}
+body.t-midnight .phone{border:1px solid rgba(255,255,255,0.06);box-shadow:0 40px 100px rgba(0,0,0,0.8);}
+body.t-saffron .phone{box-shadow:0 30px 80px rgba(0,0,0,0.3);}
+body.t-glass .phone{border:1px solid rgba(255,255,255,0.08);box-shadow:0 40px 100px rgba(0,0,0,0.6);}
+body.t-neu .phone{box-shadow:20px 20px 60px #b8c5d6,-10px -10px 30px rgba(255,255,255,0.85);}
+body.t-minimal .phone{box-shadow:0 20px 60px rgba(0,0,0,0.1);}
+
+@media(max-width:600px){
+  body{padding:0!important;background:var(--bg)!important;}
+  .phone{width:100%;border-radius:0;border:none!important;box-shadow:none!important;min-height:100vh;}
+  .status{display:none;}
+  .scroll{max-height:none!important;overflow-y:visible!important;}
+}
+
+.status{display:flex;justify-content:space-between;padding:14px 22px 6px;font-size:11px;font-weight:700;color:var(--ink);opacity:0.6;}
+.scroll{max-height:720px;overflow-y:auto;scrollbar-width:none;}
+.scroll::-webkit-scrollbar{display:none;}
+
+/* SCREENS */
+.screen{display:none;}
+.screen.active{display:block;animation:scrIn 0.38s cubic-bezier(0.34,1.3,0.64,1);}
+@keyframes scrIn{from{opacity:0;transform:translateY(14px)scale(0.98)}to{opacity:1;transform:translateY(0)scale(1)}}
+
+/* ══════════════════════════════════════
+   BOTTOM NAV
+══════════════════════════════════════ */
+.bnav{
+  display:flex;justify-content:space-around;align-items:center;
+  padding:12px 16px 28px;
+  position:sticky;bottom:0;
+}
+body.t-luxe .bnav{background:rgba(255,255,255,0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:32px 32px 0 0;box-shadow:0 -12px 32px rgba(0,7,103,0.06);}
+body.t-cartoon .bnav{background:#fff;border-top:2.5px solid #1a1a2e;}
+body.t-midnight .bnav{background:rgba(30,30,44,0.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.06);}
+body.t-saffron .bnav{background:rgba(255,255,255,0.92);backdrop-filter:blur(10px);}
+body.t-glass .bnav{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.06);}
+body.t-neu .bnav{background:var(--bg);box-shadow:0 -4px 16px rgba(184,197,214,0.3);}
+body.t-minimal .bnav{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,0.06);}
+
+.bnav-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:transform 0.2s;min-width:60px;padding:6px 8px;border-radius:16px;}
+.bnav-item:hover{transform:translateY(-2px);}
+.bnav-item .bnav-label{font-size:10px;font-weight:600;color:var(--muted);}
+.bnav-item.active{background:var(--p-fix);}
+body.t-luxe .bnav-item.active{background:#e0e0ff;}
+body.t-cartoon .bnav-item.active{background:linear-gradient(135deg,#FFD93D,#FF8C42);}
+body.t-midnight .bnav-item.active{background:rgba(124,58,237,0.2);}
+body.t-saffron .bnav-item.active{background:rgba(255,107,0,0.1);}
+body.t-glass .bnav-item.active{background:rgba(255,215,61,0.12);}
+body.t-minimal .bnav-item.active{background:rgba(0,122,255,0.1);}
+.bnav-item.active .bnav-label{color:var(--p);font-weight:700;}
+body.t-cartoon .bnav-item.active .bnav-label{color:#1a1a2e;}
+.bnav-item .material-symbols-outlined{color:var(--muted);font-size:22px;}
+.bnav-item.active .material-symbols-outlined{color:var(--p);}
+body.t-cartoon .bnav-item.active .material-symbols-outlined{color:#1a1a2e;}
+
+/* ══════════════════════════════════════
+   HOME SCREEN — LEDGER-LUXE BASE
+══════════════════════════════════════ */
+
+/* Header */
+.app-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 20px;position:sticky;top:0;z-index:40;
+}
+body.t-luxe .app-header{background:var(--bg);}
+body.t-cartoon .app-header{background:var(--bg);}
+body.t-midnight .app-header{background:var(--bg);}
+body.t-saffron .app-header,.t-glass .app-header{background:transparent;}
+body.t-glass .app-header{background:rgba(15,12,26,0.85);backdrop-filter:blur(10px);}
+body.t-minimal .app-header{background:var(--bg);}
+body.t-neu .app-header{background:var(--bg);}
+
+.header-left{display:flex;align-items:center;gap:10px;}
+.user-ava{width:38px;height:38px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:18px;}
+body.t-luxe .user-ava{background:var(--p-fix);}
+body.t-cartoon .user-ava{background:white;border:2px solid #1a1a2e;box-shadow:2px 2px 0 #1a1a2e;}
+.app-name{font-family:var(--font-h);font-size:22px;font-weight:800;letter-spacing:-0.02em;color:var(--p);}
+body.t-cartoon .app-name{color:#1a1a2e;}
+body.t-glass .app-name{color:#FFD93D;}
+body.t-midnight .app-name{color:#A78BFA;}
+body.t-saffron .app-name{color:var(--p);}
+body.t-minimal .app-name{color:var(--p);}
+
+.notif-btn{background:none;border:none;cursor:pointer;padding:8px;border-radius:50%;transition:background 0.2s;}
+.notif-btn:hover{background:rgba(128,128,128,0.1);}
+.notif-btn .material-symbols-outlined{color:var(--p);}
+body.t-glass .notif-btn .material-symbols-outlined{color:#FFD93D;}
+body.t-cartoon .notif-btn .material-symbols-outlined{color:#1a1a2e;}
+
+/* ── BALANCE HERO CARD ── */
+.hero-card{
+  margin:0 20px 20px;border-radius:var(--r-lg);padding:24px;
+  position:relative;overflow:hidden;
+}
+body.t-luxe .hero-card{background:linear-gradient(135deg,#000666,#1a237e);color:white;box-shadow:0 16px 48px rgba(0,7,103,0.25);}
+body.t-cartoon .hero-card{background:#1a1a2e;border:3px solid #1a1a2e;box-shadow:5px 5px 0 #FF8C42;color:white;}
+body.t-midnight .hero-card{background:linear-gradient(135deg,#7C3AED,#4C1D95);color:white;box-shadow:0 16px 48px rgba(124,58,237,0.3);}
+body.t-saffron .hero-card{background:linear-gradient(135deg,#FF6B00,#DC2F02);color:white;box-shadow:0 16px 48px rgba(255,107,0,0.3);}
+body.t-glass .hero-card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);backdrop-filter:blur(20px);color:white;margin-top:4px;}
+body.t-neu .hero-card{background:var(--bg);box-shadow:8px 8px 24px #b8c5d6,-8px -8px 24px rgba(255,255,255,0.8);color:var(--ink);margin-top:4px;}
+body.t-minimal .hero-card{background:linear-gradient(135deg,#007AFF,#5856D6);color:white;box-shadow:0 12px 40px rgba(0,122,255,0.3);}
+
+.hero-deco1{position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.05);}
+.hero-deco2{position:absolute;bottom:-60px;left:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.03);}
+.hero-bal-label{font-size:12px;font-weight:500;opacity:0.75;margin-bottom:4px;font-family:var(--font-b);}
+.hero-bal-amount{font-family:var(--font-h);font-size:42px;font-weight:800;letter-spacing:-0.03em;margin-bottom:20px;line-height:1;}
+body.t-cartoon .hero-bal-amount{color:#FFD93D;}
+body.t-midnight .hero-bal-amount,.t-minimal .hero-bal-amount{color:white;}
+
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;position:relative;z-index:1;}
+.hero-stat{background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,0.05);}
+body.t-neu .hero-stat{background:var(--surf-low);border:none;box-shadow:3px 3px 8px #b8c5d6,-2px -2px 6px rgba(255,255,255,0.7);}
+body.t-minimal .hero-stat{background:rgba(255,255,255,0.15);}
+.hs-label{font-size:11px;font-weight:500;opacity:0.65;margin-bottom:4px;font-family:var(--font-b);}
+.hs-val{display:flex;align-items:baseline;gap:4px;}
+.hs-amount{font-family:var(--font-h);font-size:18px;font-weight:700;}
+.hs-amount.g{color:#a3f69c;}
+body.t-neu .hs-amount.g{color:var(--green);}
+body.t-cartoon .hs-amount.g{color:#55EFC4;}
+.hs-amount.r{color:#ffdad6;}
+body.t-neu .hs-amount.r{color:var(--red);}
+body.t-cartoon .hs-amount.r{color:#FF6B6B;}
+.hs-arrow{font-size:14px;}
+
+/* ── ACTION BUTTONS ── */
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 20px 20px;}
+.act-btn{
+  border:none;border-radius:var(--r);padding:18px 14px;
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:7px;
+  transition:transform 0.2s,box-shadow 0.2s;
+  font-family:var(--font-h);font-size:14px;font-weight:700;
+  position:relative;overflow:hidden;
+}
+.act-btn:active{transform:scale(0.97);}
+.act-btn .act-icon{font-size:28px;}
+
+/* Naya Udhar */
+.act-udhar{background:linear-gradient(135deg,#003909,#00a86b);color:#a3f69c;}
+body.t-luxe .act-udhar{box-shadow:0 8px 24px rgba(0,57,9,0.3);}
+body.t-cartoon .act-udhar{background:linear-gradient(135deg,#55EFC4,#00B894);color:#1a1a2e;border:2.5px solid #1a1a2e;box-shadow:3px 3px 0 #1a1a2e;}
+body.t-midnight .act-udhar{background:linear-gradient(135deg,#059669,#047857);color:white;box-shadow:0 8px 24px rgba(16,185,129,0.3);}
+body.t-saffron .act-udhar{background:linear-gradient(135deg,#2D6A4F,#1B4332);color:#a3f69c;}
+body.t-glass .act-udhar{background:rgba(0,255,150,0.12);border:1px solid rgba(0,255,150,0.2);color:#00FF96;}
+body.t-neu .act-udhar{background:var(--bg);box-shadow:5px 5px 14px #b8c5d6,-3px -3px 10px rgba(255,255,255,0.8);color:var(--green);}
+body.t-minimal .act-udhar{background:#E8FFF4;color:#1B4332;box-shadow:0 4px 12px rgba(52,199,89,0.2);}
+.act-udhar:hover{transform:translateY(-3px);}
+
+/* Split Karo */
+.act-split{background:linear-gradient(135deg,#000666,#1a237e);color:white;}
+body.t-luxe .act-split{box-shadow:0 8px 24px rgba(0,6,102,0.35);}
+body.t-cartoon .act-split{background:linear-gradient(135deg,#A29BFE,#6C5CE7);border:2.5px solid #1a1a2e;box-shadow:3px 3px 0 #1a1a2e;}
+body.t-midnight .act-split{background:linear-gradient(135deg,#7C3AED,#5B21B6);box-shadow:0 8px 24px rgba(124,58,237,0.4);}
+body.t-saffron .act-split{background:linear-gradient(135deg,#FF6B00,#DC2F02);box-shadow:0 8px 24px rgba(255,107,0,0.3);}
+body.t-glass .act-split{background:rgba(162,155,254,0.15);border:1px solid rgba(162,155,254,0.25);color:#A29BFE;}
+body.t-neu .act-split{background:var(--bg);box-shadow:5px 5px 14px #b8c5d6,-3px -3px 10px rgba(255,255,255,0.8);color:var(--p);}
+body.t-minimal .act-split{background:#EEF2FF;color:#3730A3;box-shadow:0 4px 12px rgba(99,102,241,0.15);}
+.act-split:hover{transform:translateY(-3px);}
+
+.new-badge{
+  position:absolute;top:8px;right:8px;
+  background:#feb300;color:#281900;
+  font-size:8px;font-weight:800;padding:2px 7px;border-radius:50px;
+  font-family:var(--font-b);letter-spacing:0.06em;
+}
+
+/* ── SPLIT KARO BANNER (Stitch style) ── */
+.split-banner{
+  margin:0 20px 20px;padding:18px;border-radius:var(--r-lg);
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:transform 0.2s;
+}
+.split-banner:active{transform:scale(0.98);}
+body.t-luxe .split-banner{background:#ffdeac;}
+body.t-cartoon .split-banner{background:linear-gradient(135deg,#A29BFE,#6C5CE7);border:2.5px solid #1a1a2e;box-shadow:3px 3px 0 #1a1a2e;}
+body.t-midnight .split-banner{background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.25);}
+body.t-saffron .split-banner{background:rgba(255,107,0,0.08);border:1px solid rgba(255,107,0,0.15);}
+body.t-glass .split-banner{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(10px);}
+body.t-neu .split-banner{background:var(--bg);box-shadow:5px 5px 14px #b8c5d6,-3px -3px 10px rgba(255,255,255,0.8);}
+body.t-minimal .split-banner{background:#EEF2FF;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+
+.sb-icon{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+body.t-luxe .sb-icon{background:#7e5700;color:white;}
+body.t-cartoon .sb-icon{background:rgba(255,255,255,0.2);color:white;}
+body.t-midnight .sb-icon{background:rgba(124,58,237,0.3);color:#A78BFA;}
+body.t-saffron .sb-icon{background:var(--p);color:white;}
+body.t-glass .sb-icon{background:rgba(162,155,254,0.2);color:#A29BFE;}
+body.t-neu .sb-icon{background:var(--surf-low);box-shadow:3px 3px 8px #b8c5d6;color:var(--p);}
+body.t-minimal .sb-icon{background:var(--p);color:white;}
+
+.sb-content{flex:1;padding:0 14px;}
+.sb-title{font-family:var(--font-h);font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px;}
+body.t-luxe .sb-title{color:#281900;}
+body.t-cartoon .sb-title{color:white;}
+body.t-midnight .sb-title{color:var(--ink);}
+body.t-saffron .sb-title{color:var(--ink);}
+body.t-glass .sb-title{color:rgba(255,255,255,0.9);}
+body.t-neu .sb-title{color:var(--ink);}
+body.t-minimal .sb-title{color:var(--ink);}
+.sb-new{background:var(--p);color:white;font-size:9px;font-weight:800;padding:2px 7px;border-radius:50px;font-family:var(--font-b);}
+body.t-luxe .sb-new{background:#000666;}
+.sb-sub{font-size:12px;margin-top:2px;}
+body.t-luxe .sb-sub{color:#604100;}
+body.t-cartoon .sb-sub{color:rgba(255,255,255,0.75);}
+body.t-midnight .sb-sub,.t-glass .sb-sub{color:var(--muted);}
+.sb-arrow{opacity:0.3;}
+body.t-cartoon .sb-arrow{color:white;}
+
+/* ── CONTACTS ── */
+.sec-header{display:flex;justify-content:space-between;align-items:center;margin:0 20px 12px;}
+.sec-title{font-family:var(--font-h);font-size:18px;font-weight:800;color:var(--ink);}
+.sec-link{font-size:13px;font-weight:700;color:var(--p);cursor:pointer;}
+
+.contacts{display:flex;flex-direction:column;gap:2px;margin:0 20px;border-radius:var(--r-lg);overflow:hidden;}
+body.t-luxe .contacts{background:var(--surf-lowest);box-shadow:var(--shadow);}
+body.t-cartoon .contacts{background:transparent;gap:8px;}
+body.t-midnight .contacts{background:var(--card);border:1px solid var(--surf-low);}
+body.t-saffron .contacts{background:var(--surf-lowest);box-shadow:0 4px 16px rgba(255,107,0,0.08);}
+body.t-glass .contacts{background:transparent;gap:8px;}
+body.t-neu .contacts{background:transparent;gap:8px;}
+body.t-minimal .contacts{background:var(--surf-lowest);box-shadow:var(--shadow);}
+
+.c-row{
+  display:flex;align-items:center;gap:14px;padding:14px 16px;
+  cursor:pointer;transition:background 0.15s;
+}
+body.t-luxe .c-row:hover{background:var(--surf-low);}
+body.t-luxe .c-row+.c-row{border-top:none;}
+body.t-midnight .c-row:hover{background:rgba(255,255,255,0.03);}
+body.t-saffron .c-row:hover{background:var(--surf-low);}
+body.t-minimal .c-row:hover{background:var(--surf-low);}
+
+/* Cartoon / Glass / Neu rows as individual cards */
+body.t-cartoon .c-row{background:var(--card);border-radius:14px;border:2.5px solid #1a1a2e;box-shadow:2px 2px 0 #1a1a2e;padding:12px 14px;}
+body.t-glass .c-row{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:14px;backdrop-filter:blur(8px);}
+body.t-neu .c-row{background:var(--bg);border-radius:14px;box-shadow:4px 4px 10px #b8c5d6,-4px -4px 10px rgba(255,255,255,0.75);}
+
+.c-ava{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:16px;font-weight:800;flex-shrink:0;}
+body.t-cartoon .c-ava{border:2px solid #1a1a2e;border-radius:12px;}
+
+.c-info{flex:1;min-width:0;}
+.c-name{font-weight:700;font-size:14px;color:var(--ink);}
+.c-time{font-size:11px;color:var(--muted);margin-top:2px;}
+.c-right{text-align:right;flex-shrink:0;}
+.c-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;}
+.c-tag.pos{color:#5aa958;}
+body.t-cartoon .c-tag.pos{color:#00B894;}
+body.t-midnight .c-tag.pos,.t-glass .c-tag.pos{color:#10B981;}
+.c-tag.neg{color:#93000a;}
+body.t-cartoon .c-tag.neg{color:#FF6B6B;}
+body.t-midnight .c-tag.neg,.t-glass .c-tag.neg{color:#EF4444;}
+.c-amount{font-family:var(--font-h);font-size:18px;font-weight:800;}
+.c-amount.pos{color:#5aa958;}
+body.t-cartoon .c-amount.pos{color:#00B894;}
+body.t-midnight .c-amount.pos,.t-glass .c-amount.pos{color:#10B981;}
+.c-amount.neg{color:#93000a;}
+body.t-cartoon .c-amount.neg{color:#FF6B6B;}
+body.t-midnight .c-amount.neg,.t-glass .c-amount.neg{color:#EF4444;}
+.c-amount.zero{color:var(--muted);}
+.settled-pill{font-size:11px;font-weight:700;color:#5aa958;display:flex;align-items:center;gap:3px;}
+
+/* ── BENTO STATS ── */
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 20px 8px;}
+.bento-card{border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;justify-content:space-between;height:140px;}
+body.t-luxe .bento-card.b1{background:var(--surf-low);box-shadow:var(--shadow);}
+body.t-luxe .bento-card.b2{background:linear-gradient(135deg,#000666,#1a237e);box-shadow:0 12px 32px rgba(0,7,103,0.2);}
+body.t-cartoon .bento-card.b1{background:white;border:2.5px solid #1a1a2e;box-shadow:3px 3px 0 #1a1a2e;}
+body.t-cartoon .bento-card.b2{background:#1a1a2e;border:2.5px solid #1a1a2e;box-shadow:3px 3px 0 #FF8C42;}
+body.t-midnight .bento-card.b1{background:var(--card);border:1px solid var(--surf-low);}
+body.t-midnight .bento-card.b2{background:linear-gradient(135deg,#7C3AED,#4C1D95);}
+body.t-saffron .bento-card.b1{background:var(--surf-lowest);box-shadow:0 4px 12px rgba(255,107,0,0.08);}
+body.t-saffron .bento-card.b2{background:linear-gradient(135deg,#FF6B00,#DC2F02);}
+body.t-glass .bento-card.b1{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(10px);}
+body.t-glass .bento-card.b2{background:rgba(162,155,254,0.15);border:1px solid rgba(162,155,254,0.2);}
+body.t-neu .bento-card.b1{background:var(--bg);box-shadow:6px 6px 16px #b8c5d6,-4px -4px 12px rgba(255,255,255,0.8);}
+body.t-neu .bento-card.b2{background:linear-gradient(135deg,#4A90D9,#2d3561);}
+body.t-minimal .bento-card.b1{background:var(--surf-lowest);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+body.t-minimal .bento-card.b2{background:linear-gradient(135deg,#007AFF,#5856D6);}
+
+.bc-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+body.t-luxe .bento-card.b1 .bc-icon{background:white;box-shadow:0 2px 8px rgba(0,7,103,0.1);}
+body.t-luxe .bento-card.b2 .bc-icon{background:rgba(255,255,255,0.15);}
+.bc-label{font-size:11px;font-weight:500;color:var(--muted);}
+.bento-card.b2 .bc-label{color:rgba(255,255,255,0.65);}
+.bc-val{font-family:var(--font-h);font-size:20px;font-weight:800;color:var(--ink);}
+.bento-card.b2 .bc-val{color:white;}
+
+/* ══════════════════════════════════════
+   NAYA UDHAR SCREEN
+══════════════════════════════════════ */
+.udhar-hdr{padding:14px 20px 52px;position:relative;overflow:hidden;background:linear-gradient(135deg,#003909,#00a86b);}
+body.t-cartoon .udhar-hdr{background:linear-gradient(135deg,#55EFC4,#00B894);}
+body.t-midnight .udhar-hdr{background:linear-gradient(135deg,#059669,#047857);}
+body.t-saffron .udhar-hdr{background:linear-gradient(135deg,#2D6A4F,#1B4332);}
+body.t-glass .udhar-hdr{background:rgba(0,255,150,0.15);backdrop-filter:blur(10px);}
+body.t-neu .udhar-hdr{background:linear-gradient(135deg,#4A90D9,#2d3561);}
+body.t-minimal .udhar-hdr{background:linear-gradient(135deg,#34C759,#248A3D);}
+.udhar-hdr::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:44px;background:var(--bg);clip-path:ellipse(55% 100% at 50% 100%);}
+.udhar-deco{position:absolute;font-size:80px;opacity:0.1;animation:decoBob 3s ease-in-out infinite;}
+.udhar-deco1{top:-10px;right:-5px;}
+.udhar-deco2{bottom:10px;left:-10px;font-size:55px;animation-delay:1.5s;}
+@keyframes decoBob{0%,100%{transform:rotate(-8deg)scale(1)}50%{transform:rotate(8deg)scale(1.08)}}
+
+/* type toggle */
+.type-toggle{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 20px 14px;}
+.type-btn{
+  padding:15px 10px;border-radius:var(--r);
+  background:var(--surf-lowest);border:2px solid transparent;
+  font-family:var(--font-h);font-size:15px;cursor:pointer;color:var(--muted);
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  transition:all 0.2s cubic-bezier(0.34,1.3,0.64,1);
+}
+body.t-glass .type-btn,.t-midnight .type-btn{background:rgba(255,255,255,0.05);color:var(--muted);}
+.type-btn .tb-icon{font-size:26px;}
+.type-btn.ag{background:rgba(0,57,9,0.08);border-color:#003909;color:#003909;}
+body.t-cartoon .type-btn.ag{background:rgba(0,199,122,0.12);border-color:#00B894;color:#00B894;}
+body.t-midnight .type-btn.ag,.t-glass .type-btn.ag{background:rgba(16,185,129,0.12);border-color:#10B981;color:#10B981;}
+.type-btn.ar{background:rgba(186,26,26,0.07);border-color:#ba1a1a;color:#ba1a1a;}
+body.t-cartoon .type-btn.ar{background:rgba(255,107,107,0.12);border-color:#FF6B6B;color:#FF6B6B;}
+body.t-midnight .type-btn.ar,.t-glass .type-btn.ar{background:rgba(239,68,68,0.12);border-color:#EF4444;color:#EF4444;}
+
+/* form */
+.form-wrap{padding:0 20px;}
+.f-label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);margin-bottom:7px;}
+.f-group{margin-bottom:16px;}
+.f-inp{
+  width:100%;background:var(--surf-lowest);border:none;border-radius:var(--r);
+  padding:14px 16px;font-family:var(--font-b);font-size:14px;font-weight:600;
+  color:var(--ink);outline:none;box-shadow:var(--shadow);transition:box-shadow 0.2s;
+}
+body.t-cartoon .f-inp{border:2px solid rgba(26,26,46,0.12);box-shadow:none;}
+body.t-midnight .f-inp{background:var(--surf-low);color:var(--ink);box-shadow:none;}
+body.t-glass .f-inp{background:rgba(255,255,255,0.07);color:white;box-shadow:none;}
+.f-inp:focus{box-shadow:0 0 0 2px var(--p-fix);}
+body.t-cartoon .f-inp:focus{box-shadow:none;border-color:var(--p);}
+.f-inp::placeholder{color:var(--muted);}
+
+.rupee-wrap{display:flex;align-items:center;gap:8px;background:var(--surf-lowest);border-radius:var(--r);padding:0 16px;box-shadow:var(--shadow);transition:box-shadow 0.2s;}
+body.t-cartoon .rupee-wrap{border:2px solid rgba(26,26,46,0.12);box-shadow:none;}
+body.t-midnight .rupee-wrap{background:var(--surf-low);box-shadow:none;}
+body.t-glass .rupee-wrap{background:rgba(255,255,255,0.07);box-shadow:none;}
+.rupee-wrap:focus-within{box-shadow:0 0 0 2px var(--p-fix);}
+.rupee-sym{font-family:var(--font-h);font-size:24px;color:var(--p);}
+body.t-glass .rupee-sym,.t-midnight .rupee-sym{color:#A78BFA;}
+.rupee-inp{background:transparent;border:none;outline:none;font-family:var(--font-h);font-size:30px;font-weight:800;color:var(--ink);padding:14px 0;width:100%;}
+body.t-glass .rupee-inp,.t-midnight .rupee-inp{color:white;}
+.rupee-inp::placeholder{color:var(--muted);}
+
+.suggest-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.sug-chip{
+  background:var(--p-fix);border-radius:50px;padding:6px 14px;
+  font-size:12px;font-weight:700;color:var(--p);cursor:pointer;
+  transition:all 0.18s;border:none;font-family:var(--font-b);
+}
+.sug-chip:hover{background:var(--p);color:white;transform:translateY(-1px);}
+body.t-cartoon .sug-chip{background:rgba(162,155,254,0.15);color:#6C5CE7;border:1.5px solid rgba(162,155,254,0.4);}
+body.t-midnight .sug-chip{background:rgba(124,58,237,0.15);color:#A78BFA;}
+body.t-glass .sug-chip{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);}
+body.t-saffron .sug-chip{background:rgba(255,107,0,0.1);color:var(--p);}
+
+.bal-preview{margin:0 20px 16px;padding:14px 16px;border-radius:var(--r);display:flex;justify-content:space-between;align-items:center;}
+body.t-luxe .bal-preview,.t-saffron .bal-preview,.t-minimal .bal-preview{background:rgba(0,57,9,0.06);}
+body.t-cartoon .bal-preview{background:rgba(0,199,122,0.08);border:1.5px solid rgba(0,199,122,0.2);}
+body.t-midnight .bal-preview{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);}
+body.t-glass .bal-preview{background:rgba(0,255,150,0.07);border:1px solid rgba(0,255,150,0.15);}
+body.t-neu .bal-preview{background:var(--surf-low);box-shadow:3px 3px 8px #b8c5d6,-2px -2px 6px rgba(255,255,255,0.7);}
+.bp-label{font-size:12px;font-weight:600;color:var(--muted);}
+.bp-val{font-family:var(--font-h);font-size:20px;font-weight:800;color:#5aa958;}
+body.t-cartoon .bp-val{color:#00B894;}
+body.t-midnight .bp-val,.t-glass .bp-val{color:#10B981;}
+
+/* ── MAIN BUTTON ── */
+.btn-main{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:calc(100% - 40px);margin:0 20px 28px;
+  background:linear-gradient(135deg,var(--p),var(--p2));
+  border:none;border-radius:9999px;padding:17px;
+  font-family:var(--font-h);font-size:17px;font-weight:700;color:white;
+  cursor:pointer;box-shadow:var(--shadow-md);
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+body.t-cartoon .btn-main{border:2.5px solid #1a1a2e;box-shadow:4px 4px 0 #1a1a2e;color:#1a1a2e;}
+body.t-luxe .btn-main{box-shadow:0 8px 24px rgba(0,7,103,0.3);}
+.btn-main:hover{transform:translateY(-2px);}
+.btn-main:active{transform:scale(0.97);}
+
+/* top-bar inside screens */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 0;}
+.back-pill{background:rgba(255,255,255,0.2);border:none;border-radius:50px;padding:8px 16px;font-family:var(--font-b);font-size:13px;font-weight:700;color:white;cursor:pointer;backdrop-filter:blur(8px);transition:background 0.2s;}
+.back-pill:hover{background:rgba(255,255,255,0.3);}
+
+/* ══════════════════════════════════════
+   SPLIT SCREEN
+══════════════════════════════════════ */
+.split-hdr{padding:14px 20px 52px;position:relative;overflow:hidden;background:linear-gradient(135deg,#000666,#1a237e);}
+body.t-cartoon .split-hdr{background:linear-gradient(135deg,#A29BFE,#6C5CE7);}
+body.t-midnight .split-hdr,.t-glass .split-hdr{background:linear-gradient(135deg,#7C3AED,#4C1D95);}
+body.t-saffron .split-hdr{background:linear-gradient(135deg,#FF6B00,#DC2F02);}
+body.t-neu .split-hdr{background:linear-gradient(135deg,#4A90D9,#2d3561);}
+body.t-minimal .split-hdr{background:linear-gradient(135deg,#5856D6,#007AFF);}
+.split-hdr::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:44px;background:var(--bg);clip-path:ellipse(55% 100% at 50% 100%);}
+
+.split-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 20px 8px;}
+.spt-card{
+  background:var(--surf-lowest);border-radius:var(--r-lg);padding:20px 14px;
+  text-align:center;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;
+  position:relative;overflow:hidden;
+}
+.spt-card.full{grid-column:span 2;}
+body.t-luxe .spt-card{box-shadow:var(--shadow);}
+body.t-luxe .spt-card:hover{transform:translateY(-4px);box-shadow:0 20px 48px rgba(0,7,103,0.12);}
+body.t-cartoon .spt-card{border:2.5px solid #1a1a2e;box-shadow:3px 3px 0 #1a1a2e;}
+body.t-cartoon .spt-card:hover{transform:translateY(-4px);box-shadow:5px 5px 0 #1a1a2e;}
+body.t-midnight .spt-card{background:var(--card);border:1px solid var(--surf-low);}
+body.t-glass .spt-card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);}
+body.t-neu .spt-card{background:var(--bg);box-shadow:5px 5px 14px #b8c5d6,-3px -3px 10px rgba(255,255,255,0.8);}
+body.t-minimal .spt-card{box-shadow:0 2px 10px rgba(0,0,0,0.07);}
+body.t-saffron .spt-card{box-shadow:0 4px 12px rgba(255,107,0,0.08);border:1px solid rgba(255,107,0,0.06);}
+.spt-card:active{transform:scale(0.97);}
+
+.spt-emoji{font-size:30px;display:block;margin-bottom:10px;}
+.spt-name{font-family:var(--font-h);font-size:15px;font-weight:800;color:var(--ink);}
+.spt-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;}
+.spt-tags{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
+.spt-tag{font-size:9px;font-weight:700;padding:3px 9px;border-radius:50px;font-family:var(--font-b);}
+
+/* Recent splits */
+.recent-split{margin:16px 20px 8px;border-radius:var(--r-lg);overflow:hidden;}
+body.t-luxe .recent-split{background:var(--surf-lowest);box-shadow:var(--shadow);}
+body.t-cartoon .recent-split{background:var(--card);border:2.5px solid #1a1a2e;}
+body.t-midnight .recent-split{background:var(--card);border:1px solid var(--surf-low);}
+body.t-glass .recent-split{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(10px);}
+body.t-neu .recent-split{background:var(--bg);box-shadow:5px 5px 14px #b8c5d6,-3px -3px 10px rgba(255,255,255,0.8);}
+body.t-minimal .recent-split{background:var(--surf-lowest);box-shadow:var(--shadow);}
+body.t-saffron .recent-split{background:var(--surf-lowest);box-shadow:0 4px 12px rgba(255,107,0,0.08);}
+
+.rs-item{display:flex;align-items:center;gap:12px;padding:14px 16px;}
+.rs-item+.rs-item{border-top:1px solid var(--surf-low);}
+body.t-cartoon .rs-item+.rs-item{border-color:rgba(26,26,46,0.08);}
+body.t-glass .rs-item+.rs-item{border-color:rgba(255,255,255,0.06);}
+body.t-midnight .rs-item+.rs-item{border-color:rgba(255,255,255,0.04);}
+.rs-icon{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.rs-name{font-weight:700;font-size:13px;color:var(--ink);}
+.rs-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.rs-amount{font-family:var(--font-h);font-size:15px;font-weight:800;color:#93000a;margin-left:auto;}
+body.t-cartoon .rs-amount,.t-glass .rs-amount,.t-midnight .rs-amount{color:var(--red);}
+.rs-settled{font-size:12px;font-weight:700;color:#5aa958;margin-left:auto;}
+body.t-cartoon .rs-settled,.t-glass .rs-settled,.t-midnight .rs-settled{color:var(--green);}
+
+/* ══════════════════════════════════════
+   THEME FAB + PANEL
+══════════════════════════════════════ */
+.fab{
+  position:fixed;bottom:28px;right:22px;
+  width:52px;height:52px;border-radius:50%;border:none;
+  font-size:20px;cursor:pointer;z-index:999;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.3s cubic-bezier(0.34,1.5,0.64,1);
+}
+body.t-luxe .fab{background:var(--p);color:white;box-shadow:0 8px 24px rgba(0,7,103,0.35);}
+body.t-cartoon .fab{background:linear-gradient(135deg,#FFD93D,#FF8C42);border:2.5px solid #1a1a2e;box-shadow:4px 4px 0 #1a1a2e;}
+body.t-midnight .fab{background:linear-gradient(135deg,#7C3AED,#5B21B6);box-shadow:0 8px 24px rgba(124,58,237,0.5);}
+body.t-saffron .fab{background:linear-gradient(135deg,#FF6B00,#DC2F02);color:white;box-shadow:0 8px 24px rgba(255,107,0,0.4);}
+body.t-glass .fab{background:rgba(255,215,61,0.2);border:1px solid rgba(255,215,61,0.4);backdrop-filter:blur(10px);}
+body.t-neu .fab{background:var(--bg);box-shadow:6px 6px 16px #b8c5d6,-4px -4px 10px rgba(255,255,255,0.8);color:var(--p);}
+body.t-minimal .fab{background:var(--p);color:white;box-shadow:0 8px 24px rgba(0,122,255,0.35);}
+.fab:hover{transform:scale(1.1) rotate(15deg);}
+.fab.open{transform:scale(1.08) rotate(45deg);}
+
+.theme-panel{
+  position:fixed;bottom:92px;right:16px;
+  background:rgba(20,20,30,0.97);backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,0.1);border-radius:24px;
+  padding:14px;z-index:998;min-width:210px;
+  transform:scale(0.85) translateY(16px);transform-origin:bottom right;
+  opacity:0;pointer-events:none;
+  transition:all 0.3s cubic-bezier(0.34,1.3,0.64,1);
+}
+.theme-panel.open{opacity:1;pointer-events:all;transform:scale(1) translateY(0);}
+.tp-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);padding:3px 10px 10px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:8px;font-family:'Inter',sans-serif;}
+.t-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:14px;border:none;background:transparent;cursor:pointer;width:100%;text-align:left;transition:background 0.2s,transform 0.2s;font-family:'Inter',sans-serif;}
+.t-opt:hover{background:rgba(255,255,255,0.07);transform:translateX(-3px);}
+.t-opt.cur{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.15);}
+.t-opt-ico{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.t-opt-name{font-size:13px;font-weight:700;color:white;}
+.t-opt-sub{font-size:10px;color:rgba(255,255,255,0.38);margin-top:1px;}
+.tp-divider{height:1px;background:rgba(255,255,255,0.07);margin:6px 0;}
+.tp-new-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.22);padding:4px 12px 6px;font-family:'Inter',sans-serif;}
+
+/* TOAST */
+.toast{position:fixed;bottom:44px;left:50%;transform:translateX(-50%) translateY(120px);background:#191c1e;color:white;padding:11px 22px;border-radius:50px;font-size:13px;font-weight:700;z-index:9999;white-space:nowrap;transition:transform 0.4s cubic-bezier(0.34,1.3,0.64,1);pointer-events:none;font-family:'Inter',sans-serif;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body class="t-luxe">
+
+<div class="phone">
+  <div class="status"><span>9:41</span><span>📶🔋</span></div>
+
+  <!-- ══════════ HOME ══════════ -->
+  <div class="screen active" id="s-home">
+    <div class="scroll" style="padding-bottom:100px;">
+
+      <header class="app-header">
+        <div class="header-left">
+          <div class="user-ava">😄</div>
+          <span class="app-name">UdharBook</span>
+        </div>
+        <button class="notif-btn">
+          <span class="material-symbols-outlined fill">notifications</span>
+        </button>
+      </header>
+
+      <!-- Balance Hero -->
+      <div class="hero-card">
+        <div class="hero-deco1"></div>
+        <div class="hero-deco2"></div>
+        <p class="hero-bal-label">Total Net Balance</p>
+        <h1 class="hero-bal-amount">₹12,450</h1>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hs-label">Tumhe Milna Hai</div>
+            <div class="hs-val">
+              <span class="hs-amount g">₹18,200</span>
+              <span class="material-symbols-outlined hs-arrow" style="color:#a3f69c;font-size:14px;">arrow_upward</span>
+            </div>
+          </div>
+          <div class="hero-stat">
+            <div class="hs-label">Tumhara Dena Hai</div>
+            <div class="hs-val">
+              <span class="hs-amount r">₹5,750</span>
+              <span class="material-symbols-outlined hs-arrow" style="color:#ffdad6;font-size:14px;">arrow_downward</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TWO ACTION BUTTONS — Alag Alag -->
+      <div class="action-row">
+        <button class="act-btn act-udhar" onclick="goto('udhar')">
+          <span class="act-icon">💸</span>
+          Naya Udhar
+        </button>
+        <button class="act-btn act-split" onclick="goto('split')">
+          <span class="new-badge">NEW</span>
+          <span class="act-icon">✂️</span>
+          Split Karo
+        </button>
+      </div>
+
+      <!-- Split Banner (Stitch style) -->
+      <div class="split-banner" onclick="goto('split')">
+        <div class="sb-icon">
+          <span class="material-symbols-outlined fill" style="font-size:24px;">call_split</span>
+        </div>
+        <div class="sb-content">
+          <div class="sb-title">
+            Split Karo
+            <span class="sb-new">NEW</span>
+          </div>
+          <div class="sb-sub">Bill, trip, loan — sab split karo</div>
+        </div>
+        <span class="material-symbols-outlined sb-arrow">chevron_right</span>
+      </div>
+
+      <!-- Recent Contacts -->
+      <div class="sec-header">
+        <span class="sec-title">Recent Contacts</span>
+        <span class="sec-link" onclick="showToast('Sab contacts!')">View All</span>
+      </div>
+
+      <div class="contacts">
+        <div class="c-row" onclick="goto('detail')">
+          <div class="c-ava" style="background:#e0e0ff;color:#000666;">R</div>
+          <div class="c-info">
+            <div class="c-name">Rahul Sharma</div>
+            <div class="c-time">2 days ago</div>
+          </div>
+          <div class="c-right">
+            <div class="c-tag pos">You Get</div>
+            <div class="c-amount pos">₹4,500</div>
+          </div>
+        </div>
+        <div class="c-row" onclick="goto('detail')">
+          <div class="c-ava" style="background:#ffdeac;color:#7e5700;">P</div>
+          <div class="c-info">
+            <div class="c-name">Priya Verma</div>
+            <div class="c-time">Today, 10:45 AM</div>
+          </div>
+          <div class="c-right">
+            <div class="c-tag neg">You Owe</div>
+            <div class="c-amount neg">₹1,200</div>
+          </div>
+        </div>
+        <div class="c-row" onclick="goto('detail')">
+          <div class="c-ava" style="background:#a3f69c;color:#002204;">A</div>
+          <div class="c-info">
+            <div class="c-name">Anish Gupta</div>
+            <div class="c-time">Yesterday</div>
+          </div>
+          <div class="c-right">
+            <div class="c-tag pos">You Get</div>
+            <div class="c-amount pos">₹800</div>
+          </div>
+        </div>
+        <div class="c-row" onclick="goto('detail')">
+          <div class="c-ava" style="background:#e0e3e6;color:#454652;">M</div>
+          <div class="c-info">
+            <div class="c-name">Modern Groceries</div>
+            <div class="c-time">Last week</div>
+          </div>
+          <div class="c-right">
+            <div class="c-tag neg">You Owe</div>
+            <div class="c-amount neg">₹3,450</div>
+          </div>
+        </div>
+        <!-- Settled -->
+        <div class="c-row" onclick="goto('detail')">
+          <div class="c-ava" style="background:#88d982;color:#002204;">S</div>
+          <div class="c-info">
+            <div class="c-name">Suresh Bhai</div>
+            <div class="c-time">✅ Settled • 3 days ago</div>
+          </div>
+          <div class="c-right">
+            <div class="settled-pill">🎉 Clear!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bento Stats -->
+      <div class="bento">
+        <div class="bento-card b1">
+          <div class="bc-icon" style="background:white;box-shadow:0 2px 8px rgba(0,7,103,0.1);">
+            <span class="material-symbols-outlined" style="color:var(--p);">insert_chart</span>
+          </div>
+          <div>
+            <div class="bc-label">Monthly Flow</div>
+            <div class="bc-val">+14.5%</div>
+          </div>
+        </div>
+        <div class="bento-card b2" style="position:relative;overflow:hidden;">
+          <div class="bc-icon" style="background:rgba(255,255,255,0.15);">
+            <span class="material-symbols-outlined fill" style="color:white;">verified_user</span>
+          </div>
+          <div style="position:absolute;right:-12px;bottom:-12px;opacity:0.1;">
+            <span class="material-symbols-outlined fill" style="font-size:64px;color:white;">security</span>
+          </div>
+          <div style="position:relative;z-index:1;">
+            <div class="bc-label">Ledger Health</div>
+            <div class="bc-val">Excellent</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bnav">
+        <div class="bnav-item active" onclick="goto('home')">
+          <span class="material-symbols-outlined fill">home</span>
+          <span class="bnav-label">Home</span>
+        </div>
+        <div class="bnav-item" onclick="showToast('Contacts screen!')">
+          <span class="material-symbols-outlined">group</span>
+          <span class="bnav-label">Contacts</span>
+        </div>
+        <div class="bnav-item" onclick="goto('split')">
+          <span class="material-symbols-outlined">call_split</span>
+          <span class="bnav-label">Split</span>
+        </div>
+        <div class="bnav-item" onclick="showToast('Reports jald!')">
+          <span class="material-symbols-outlined">insert_chart</span>
+          <span class="bnav-label">Reports</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ NAYA UDHAR ══════════ -->
+  <div class="screen" id="s-udhar">
+    <div class="scroll" style="padding-bottom:40px;">
+      <div class="udhar-hdr">
+        <div class="udhar-deco udhar-deco1">💸</div>
+        <div class="udhar-deco udhar-deco2">📒</div>
+        <div class="top-bar">
+          <button class="back-pill" onclick="goto('home')">← Wapas</button>
+          <span style="color:rgba(255,255,255,0.7);font-size:13px;font-family:var(--font-b);">Naya Udhar</span>
+        </div>
+        <div style="padding:12px 20px 0;position:relative;z-index:1;">
+          <div style="font-family:var(--font-h);font-size:26px;font-weight:800;color:white;">Hisaab Likho ✍️</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px;font-family:var(--font-b);">Simple aur seedha!</div>
+        </div>
+      </div>
+
+      <div class="type-toggle">
+        <button class="type-btn ag" id="tb-gave" onclick="setType('gave')">
+          <span class="tb-icon">💸</span> Maine Diya
+        </button>
+        <button class="type-btn" id="tb-got" onclick="setType('got')">
+          <span class="tb-icon">🤝</span> Maine Liya
+        </button>
+      </div>
+
+      <div class="form-wrap">
+        <div class="f-group">
+          <label class="f-label">💰 Kitna Paisa?</label>
+          <div class="rupee-wrap">
+            <span class="rupee-sym">₹</span>
+            <input class="rupee-inp" type="number" id="u-amt" placeholder="0"/>
+          </div>
+        </div>
+        <div class="f-group">
+          <label class="f-label">👤 Kisne Diya / Kisko Diya?</label>
+          <input class="f-inp" type="text" id="u-contact" placeholder="Naam ya number daalo..."/>
+          <div class="suggest-row">
+            <button class="sug-chip" onclick="fillC('Rahul')">😄 Rahul</button>
+            <button class="sug-chip" onclick="fillC('Priya')">😊 Priya</button>
+            <button class="sug-chip" onclick="fillC('Anish')">😎 Anish</button>
+          </div>
+        </div>
+        <div class="f-group">
+          <label class="f-label">📝 Kisliye? (Optional)</label>
+          <input class="f-inp" type="text" placeholder="e.g. Grocery, Petrol, Lunch..."/>
+        </div>
+        <div class="f-group">
+          <label class="f-label">📅 Date</label>
+          <input class="f-inp" type="date" value="2026-03-31"/>
+        </div>
+      </div>
+
+      <div class="bal-preview">
+        <span class="bp-label">Rahul ka balance hoga:</span>
+        <span class="bp-val">+₹4,500</span>
+      </div>
+
+      <button class="btn-main" onclick="saveUdhar()">💾 Save Karo</button>
+    </div>
+  </div>
+
+  <!-- ══════════ SPLIT ══════════ -->
+  <div class="screen" id="s-split">
+    <div class="scroll" style="padding-bottom:100px;">
+      <div class="split-hdr">
+        <div class="top-bar">
+          <button class="back-pill" onclick="goto('home')">← Wapas</button>
+        </div>
+        <div style="padding:12px 20px 0;position:relative;z-index:1;">
+          <div style="font-family:var(--font-h);font-size:26px;font-weight:800;color:white;">Split Karo ✂️</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px;font-family:var(--font-b);">Bill, Loan ya Group — choose karo</div>
+        </div>
+      </div>
+
+      <div class="split-grid">
+        <div class="spt-card full" onclick="showToast('Bill Split khul raha hai!')">
+          <span class="spt-emoji">🍽️</span>
+          <div class="spt-name">Bill Split</div>
+          <div class="spt-desc">Restaurant, trip, party — kisi bhi bill ko divide karo</div>
+          <div class="spt-tags">
+            <span class="spt-tag" style="background:#e0e0ff;color:#000666;">⚖️ Equal</span>
+            <span class="spt-tag" style="background:#ffdeac;color:#7e5700;">✏️ Custom</span>
+            <span class="spt-tag" style="background:#a3f69c;color:#002204;">% Percent</span>
+            <span class="spt-tag" style="background:#ffdad6;color:#93000a;">📋 Item-wise</span>
+          </div>
+        </div>
+        <div class="spt-card" onclick="showToast('Loan Split!')">
+          <span class="spt-emoji">💳</span>
+          <div class="spt-name">Loan Split</div>
+          <div class="spt-desc">EMI schedule banao</div>
+        </div>
+        <div class="spt-card" onclick="showToast('Group Udhar!')">
+          <span class="spt-emoji">👥</span>
+          <div class="spt-name">Group Udhar</div>
+          <div class="spt-desc">Multiple log, ek baar</div>
+        </div>
+      </div>
+
+      <div class="sec-header" style="margin-top:8px;">
+        <span class="sec-title">Recent Splits</span>
+        <span class="sec-link">View All</span>
+      </div>
+
+      <div class="recent-split">
+        <div class="rs-item">
+          <div class="rs-icon" style="background:linear-gradient(135deg,#FFD93D,#FF8C42);">🍕</div>
+          <div>
+            <div class="rs-name">Pizza Night</div>
+            <div class="rs-meta">3 log • 2 din pehle</div>
+          </div>
+          <div class="rs-amount">₹450</div>
+        </div>
+        <div class="rs-item">
+          <div class="rs-icon" style="background:linear-gradient(135deg,#74B9FF,#0984E3);">🚗</div>
+          <div>
+            <div class="rs-name">Goa Trip Petrol</div>
+            <div class="rs-meta">4 log • 1 hafte pehle</div>
+          </div>
+          <div class="rs-settled">✓ Settled</div>
+        </div>
+        <div class="rs-item">
+          <div class="rs-icon" style="background:linear-gradient(135deg,#a3f69c,#88d982);">🎂</div>
+          <div>
+            <div class="rs-name">Birthday Party</div>
+            <div class="rs-meta">6 log • 5 din pehle</div>
+          </div>
+          <div class="rs-amount">₹833</div>
+        </div>
+      </div>
+
+      <div class="bnav">
+        <div class="bnav-item" onclick="goto('home')"><span class="material-symbols-outlined">home</span><span class="bnav-label">Home</span></div>
+        <div class="bnav-item" onclick="showToast('Contacts!')"><span class="material-symbols-outlined">group</span><span class="bnav-label">Contacts</span></div>
+        <div class="bnav-item active"><span class="material-symbols-outlined fill">call_split</span><span class="bnav-label">Split</span></div>
+        <div class="bnav-item" onclick="showToast('Reports jald!')"><span class="material-symbols-outlined">insert_chart</span><span class="bnav-label">Reports</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ CONTACT DETAIL ══════════ -->
+  <div class="screen" id="s-detail">
+    <div class="scroll" style="padding-bottom:40px;">
+      <div style="background:linear-gradient(135deg,#000666,#1a237e);padding:14px 20px 52px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-40px;right:-40px;width:130px;height:130px;background:rgba(255,255,255,0.06);border-radius:50%;"></div>
+        <div class="top-bar" style="padding:0;margin-bottom:18px;">
+          <button class="back-pill" onclick="goto('home')">← Wapas</button>
+          <button onclick="showToast('💬 WhatsApp reminder bheja!')" style="background:#25D366;border:none;border-radius:50px;padding:8px 16px;font-size:12px;font-weight:700;color:white;cursor:pointer;font-family:var(--font-b);display:flex;align-items:center;gap:5px;">💬 Remind</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;position:relative;z-index:1;">
+          <div style="width:58px;height:58px;background:var(--p-fix);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:22px;font-weight:800;color:var(--p);">R</div>
+          <div>
+            <div style="font-family:var(--font-h);font-size:22px;font-weight:800;color:white;">Rahul Sharma</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px;font-family:var(--font-b);">+91 98765 43210</div>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:-2px;left:0;right:0;height:44px;background:var(--bg);clip-path:ellipse(55% 100% at 50% 100%);"></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:-22px 20px 20px;position:relative;z-index:5;">
+        <div style="background:var(--surf-lowest);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:var(--shadow);">
+          <div style="font-size:18px;margin-bottom:4px;">💸</div>
+          <div style="font-family:var(--font-h);font-size:15px;font-weight:800;color:#5aa958;">₹6,000</div>
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-top:2px;">Diya</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#003909,#00a86b);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 8px 24px rgba(0,57,9,0.3);">
+          <div style="font-size:18px;margin-bottom:4px;">⚖️</div>
+          <div style="font-family:var(--font-h);font-size:15px;font-weight:800;color:white;">+₹4,500</div>
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.65);margin-top:2px;">Net</div>
+        </div>
+        <div style="background:var(--surf-lowest);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:var(--shadow);">
+          <div style="font-size:18px;margin-bottom:4px;">🤝</div>
+          <div style="font-family:var(--font-h);font-size:15px;font-weight:800;color:#93000a;">₹1,500</div>
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-top:2px;">Liya</div>
+        </div>
+      </div>
+
+      <div class="sec-header"><span class="sec-title">Transactions</span></div>
+
+      <div style="margin:0 20px;display:flex;flex-direction:column;gap:2px;background:var(--surf-lowest);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow);">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;">
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(0,57,9,0.08);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">💸</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:13px;color:var(--ink);">Diya</div><div style="font-size:11px;color:var(--muted);">Grocery 🛒 • Aaj</div></div>
+          <div style="font-family:var(--font-h);font-size:16px;font-weight:800;color:#5aa958;">+₹500</div>
+        </div>
+        <div style="height:1px;background:var(--surf-low);margin:0 16px;"></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;">
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(186,26,26,0.07);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🤝</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:13px;color:var(--ink);">Liya</div><div style="font-size:11px;color:var(--muted);">Auto kiraya 🛺 • 15 Mar</div></div>
+          <div style="font-family:var(--font-h);font-size:16px;font-weight:800;color:#93000a;">−₹200</div>
+        </div>
+        <div style="height:1px;background:var(--surf-low);margin:0 16px;"></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;">
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(0,57,9,0.08);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">💸</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:13px;color:var(--ink);">Diya</div><div style="font-size:11px;color:var(--muted);">Chai & snacks ☕ • 10 Mar</div></div>
+          <div style="font-family:var(--font-h);font-size:16px;font-weight:800;color:#5aa958;">+₹4,200</div>
+        </div>
+      </div>
+
+      <div style="height:16px;"></div>
+      <button class="btn-main" onclick="goto('udhar')">➕ Transaction Add Karo</button>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<!-- THEME FAB -->
+<button class="fab" id="fab" onclick="togglePanel()">🎨</button>
+
+<div class="theme-panel" id="panel">
+  <div class="tp-head">Theme Badlo</div>
+
+  <button class="t-opt cur" id="to-luxe" onclick="setTheme('luxe')">
+    <div class="t-opt-ico" style="background:linear-gradient(135deg,#000666,#1a237e);">💎</div>
+    <div><div class="t-opt-name">Ledger-Luxe</div><div class="t-opt-sub">Premium Indigo • Default</div></div>
+  </button>
+
+  <button class="t-opt" id="to-cartoon" onclick="setTheme('cartoon')">
+    <div class="t-opt-ico" style="background:linear-gradient(135deg,#FFD93D,#FF8C42);">🎨</div>
+    <div><div class="t-opt-name">Cartoon</div><div class="t-opt-sub">Bold & Playful</div></div>
+  </button>
+
+  <button class="t-opt" id="to-midnight" onclick="setTheme('midnight')">
+    <div class="t-opt-ico" style="background:linear-gradient(135deg,#7C3AED,#1a1a2e);">🌙</div>
+    <div><div class="t-opt-name">Midnight</div><div class="t-opt-sub">Deep Dark Pro</div></div>
+  </button>
+
+  <button class="t-opt" id="to-saffron" onclick="setTheme('saffron')">
+    <div class="t-opt-ico" style="background:linear-gradient(135deg,#FF6B00,#DC2F02);">🪔</div>
+    <div><div class="t-opt-name">Saffron</div><div class="t-opt-sub">Desi & Warm</div></div>
+  </button>
+
+  <div class="tp-divider"></div>
+  <div class="tp-new-label">More Styles</div>
+
+  <button class="t-opt" id="to-glass" onclick="setTheme('glass')">
+    <div class="t-opt-ico" style="background:linear-gradient(135deg,#1a0533,#0d1f3c);">✨</div>
+    <div><div class="t-opt-name">Glassmorphism</div><div class="t-opt-sub">Dark Luxe</div></div>
+  </button>
+
+  <button class="t-opt" id="to-neu" onclick="setTheme('neu')">
+    <div class="t-opt-ico" style="background:#E4EBF5;box-shadow:2px 2px 6px #b8c5d6;">🪨</div>
+    <div><div class="t-opt-name">Neumorphism</div><div class="t-opt-sub">Soft 3D</div></div>
+  </button>
+
+  <button class="t-opt" id="to-minimal" onclick="setTheme('minimal')">
+    <div class="t-opt-ico" style="background:linear-gradient(135deg,#007AFF,#5856D6);">📱</div>
+    <div><div class="t-opt-name">Minimal</div><div class="t-opt-sub">Clean iOS</div></div>
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const THEMES = ['luxe','cartoon','midnight','saffron','glass','neu','minimal'];
+let cur = 'luxe', panelOpen = false, toastTimer;
+const names = {luxe:'💎 Ledger-Luxe',cartoon:'🎨 Cartoon',midnight:'🌙 Midnight',saffron:'🪔 Saffron',glass:'✨ Glass',neu:'🪨 Neumorphism',minimal:'📱 Minimal'};
+
+function setTheme(t) {
+  THEMES.forEach(th => document.body.classList.remove('t-' + th));
+  document.body.classList.add('t-' + t);
+  cur = t;
+  THEMES.forEach(th => { const el = document.getElementById('to-' + th); if(el) el.classList.toggle('cur', th === t); });
+  togglePanel();
+  showToast(names[t] + ' theme on! 🎨');
+}
+
+function togglePanel() {
+  panelOpen = !panelOpen;
+  document.getElementById('fab').classList.toggle('open', panelOpen);
+  document.getElementById('panel').classList.toggle('open', panelOpen);
+}
+
+function goto(sc) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('s-' + sc);
+  if(el) { el.classList.add('active'); el.querySelector('.scroll')?.scrollTo(0,0); }
+  if(panelOpen) togglePanel();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function setType(type) {
+  document.getElementById('tb-gave').className = 'type-btn' + (type==='gave' ? ' ag' : '');
+  document.getElementById('tb-got').className = 'type-btn' + (type==='got' ? ' ar' : '');
+}
+
+function fillC(name) {
+  document.getElementById('u-contact').value = name;
+  showToast('✅ ' + name + ' select kiya!');
+}
+
+function saveUdhar() {
+  const amt = document.getElementById('u-amt').value;
+  if(!amt || amt <= 0) { showToast('⚠️ Amount daalo pehle!'); return; }
+  showToast('✅ Udhar save ho gaya bhai!');
+  setTimeout(() => goto('home'), 1300);
+}
+</script>
+</body>
+</html>

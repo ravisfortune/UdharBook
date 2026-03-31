@@ -1,0 +1,46 @@
+{
+  "cli": {
+    "version": ">= 16.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+
+    "preview": {
+      "distribution": "internal"
+    },
+
+    "production": {
+      "distribution": "store"
+    },
+
+    "sharma-store": {
+      "distribution": "store",
+      "env": {
+        "BRAND_ID": "sharma-store",
+        "APP_NAME": "Sharma Store Khata",
+        "PRIMARY_COLOR": "#DC2626",
+        "BUNDLE_ID_IOS": "com.sharmastore.khata",
+        "BUNDLE_ID_ANDROID": "com.sharmastore.khata",
+        "DEFAULT_LOCALE": "hi"
+      }
+    },
+
+    "verma-cloth": {
+      "distribution": "store",
+      "env": {
+        "BRAND_ID": "verma-cloth",
+        "APP_NAME": "Verma Cloth Khata",
+        "PRIMARY_COLOR": "#7C3AED",
+        "BUNDLE_ID_IOS": "com.vermacloth.khata",
+        "BUNDLE_ID_ANDROID": "com.vermacloth.khata",
+        "DEFAULT_LOCALE": "hi"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
