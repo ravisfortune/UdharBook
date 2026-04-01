@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   ScrollView, StyleSheet, Alert,
@@ -8,7 +8,9 @@ import { useNavigation } from '@react-navigation/native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { Colors, FontFamily, FontSize, Spacing, Radius, Shadows } from '@theme/tokens';
+import { FontFamily, FontSize, Spacing, Radius } from '@theme/tokens';
+import { useTheme } from '@theme/ThemeContext';
+import { ThemeColors } from '@theme/themes';
 import { useSplitStore } from '@store/useSplitStore';
 import ContactPicker from '@components/ContactPicker';
 import { formatCurrency } from '@utils/currency';
@@ -16,6 +18,8 @@ import { fadeInDown } from '@utils/animations';
 
 export default function SplitGroupScreen() {
   const navigation = useNavigation();
+  const { colors, shadows } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, shadows), [colors]);
   const store = useSplitStore();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -53,7 +57,7 @@ export default function SplitGroupScreen() {
     <SafeAreaView style={styles.container}>
       <Animated.View entering={FadeInDown.duration(300)} style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <MaterialIcons name="arrow-back" size={22} color={Colors.ink} />
+          <MaterialIcons name="arrow-back" size={22} color={colors.ink} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Group Udhar</Text>
         <View style={{ width: 40 }} />
@@ -92,7 +96,7 @@ export default function SplitGroupScreen() {
             value={store.title}
             onChangeText={store.setTitle}
             placeholder="e.g. Trip to Goa"
-            placeholderTextColor={Colors.mutedLight}
+            placeholderTextColor={colors.mutedLight}
           />
         </Animated.View>
 
@@ -130,7 +134,7 @@ export default function SplitGroupScreen() {
                     onChangeText={v => store.updateMemberAmount(m.contactId, parseFloat(v) || 0)}
                     keyboardType="numeric"
                     placeholder="0"
-                    placeholderTextColor={Colors.mutedLight}
+                    placeholderTextColor={colors.mutedLight}
                   />
                 </View>
               </Animated.View>
@@ -161,82 +165,84 @@ export default function SplitGroupScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.surface },
-  header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md,
-  },
-  backBtn: {
-    width: 40, height: 40, borderRadius: Radius.full,
-    backgroundColor: Colors.surfaceLowest, alignItems: 'center', justifyContent: 'center',
-    ...Shadows.sm,
-  },
-  headerTitle: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg, color: Colors.ink },
-  content: { paddingHorizontal: Spacing.xl, paddingBottom: 120 },
-  typeToggle: {
-    flexDirection: 'row', gap: Spacing.sm,
-    backgroundColor: Colors.surfaceLow, borderRadius: Radius.lg,
-    padding: 4, marginBottom: Spacing.xl,
-  },
-  typeBtn: {
-    flex: 1, paddingVertical: Spacing.md, borderRadius: Radius.md, alignItems: 'center',
-  },
-  typeBtnActive: { backgroundColor: Colors.primary, ...Shadows.sm },
-  typeBtnGreen: { backgroundColor: Colors.greenBg, ...Shadows.sm },
-  typeTxt: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.sm, color: Colors.muted },
-  typeTxtActive: { color: '#fff', fontFamily: FontFamily.bodySemiBold },
-  fieldLabel: {
-    fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs, color: Colors.muted,
-    textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: Spacing.sm,
-  },
-  input: {
-    backgroundColor: Colors.surfaceLow, borderRadius: Radius.md,
-    padding: Spacing.lg, fontFamily: FontFamily.bodyMedium,
-    fontSize: FontSize.md, color: Colors.ink,
-  },
-  memberRow: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
-    backgroundColor: Colors.surfaceLowest, borderRadius: Radius.md,
-    padding: Spacing.md, marginBottom: Spacing.sm, ...Shadows.sm,
-  },
-  avatar: {
-    width: 36, height: 36, borderRadius: Radius.full,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  avatarTxt: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.sm },
-  memberName: { flex: 1, fontFamily: FontFamily.bodyMedium, fontSize: FontSize.md, color: Colors.ink },
-  amountBox: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: Colors.surfaceLow, borderRadius: Radius.sm, paddingHorizontal: Spacing.sm,
-  },
-  rupee: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: Colors.muted },
-  amountInput: {
-    fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg,
-    color: Colors.primary, padding: Spacing.sm, minWidth: 80, textAlign: 'right',
-  },
-  totalRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    backgroundColor: Colors.primaryFixed, borderRadius: Radius.md,
-    padding: Spacing.md, marginTop: Spacing.sm,
-  },
-  totalLabel: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.md, color: Colors.primary },
-  totalValue: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg, color: Colors.primary },
-  footer: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    padding: Spacing.xl, backgroundColor: Colors.surfaceLowest,
-    borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl, ...Shadows.lg,
-  },
-  saveBtn: {
-    backgroundColor: Colors.primary, borderRadius: Radius.full,
-    padding: Spacing.lg, alignItems: 'center', ...Shadows.md,
-  },
-  saveBtnTxt: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.md, color: Colors.onPrimary },
-  successScreen: {
-    flex: 1, backgroundColor: Colors.surfaceLowest, alignItems: 'center', justifyContent: 'center',
-  },
-  successContent: { alignItems: 'center' },
-  successEmoji: { fontSize: 60, marginBottom: Spacing.lg },
-  successTitle: { fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.xxl, color: Colors.ink },
-  successSub: { fontFamily: FontFamily.body, fontSize: FontSize.md, color: Colors.muted, marginTop: Spacing.sm },
-});
+function makeStyles(colors: ThemeColors, shadows: any) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    header: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md,
+    },
+    backBtn: {
+      width: 40, height: 40, borderRadius: Radius.full,
+      backgroundColor: colors.surfaceLowest, alignItems: 'center', justifyContent: 'center',
+      ...shadows.sm,
+    },
+    headerTitle: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg, color: colors.ink },
+    content: { paddingHorizontal: Spacing.xl, paddingBottom: 120 },
+    typeToggle: {
+      flexDirection: 'row', gap: Spacing.sm,
+      backgroundColor: colors.surfaceLow, borderRadius: Radius.lg,
+      padding: 4, marginBottom: Spacing.xl,
+    },
+    typeBtn: {
+      flex: 1, paddingVertical: Spacing.md, borderRadius: Radius.md, alignItems: 'center',
+    },
+    typeBtnActive: { backgroundColor: colors.primary, ...shadows.sm },
+    typeBtnGreen: { backgroundColor: colors.greenBg, ...shadows.sm },
+    typeTxt: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.sm, color: colors.muted },
+    typeTxtActive: { color: '#fff', fontFamily: FontFamily.bodySemiBold },
+    fieldLabel: {
+      fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs, color: colors.muted,
+      textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: Spacing.sm,
+    },
+    input: {
+      backgroundColor: colors.surfaceLow, borderRadius: Radius.md,
+      padding: Spacing.lg, fontFamily: FontFamily.bodyMedium,
+      fontSize: FontSize.md, color: colors.ink,
+    },
+    memberRow: {
+      flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+      backgroundColor: colors.surfaceLowest, borderRadius: Radius.md,
+      padding: Spacing.md, marginBottom: Spacing.sm, ...shadows.sm,
+    },
+    avatar: {
+      width: 36, height: 36, borderRadius: Radius.full,
+      alignItems: 'center', justifyContent: 'center',
+    },
+    avatarTxt: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.sm },
+    memberName: { flex: 1, fontFamily: FontFamily.bodyMedium, fontSize: FontSize.md, color: colors.ink },
+    amountBox: {
+      flexDirection: 'row', alignItems: 'center',
+      backgroundColor: colors.surfaceLow, borderRadius: Radius.sm, paddingHorizontal: Spacing.sm,
+    },
+    rupee: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: colors.muted },
+    amountInput: {
+      fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg,
+      color: colors.primary, padding: Spacing.sm, minWidth: 80, textAlign: 'right',
+    },
+    totalRow: {
+      flexDirection: 'row', justifyContent: 'space-between',
+      backgroundColor: colors.primaryFixed, borderRadius: Radius.md,
+      padding: Spacing.md, marginTop: Spacing.sm,
+    },
+    totalLabel: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.md, color: colors.primary },
+    totalValue: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg, color: colors.primary },
+    footer: {
+      position: 'absolute', bottom: 0, left: 0, right: 0,
+      padding: Spacing.xl, backgroundColor: colors.surfaceLowest,
+      borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl, ...shadows.lg,
+    },
+    saveBtn: {
+      backgroundColor: colors.primary, borderRadius: Radius.full,
+      padding: Spacing.lg, alignItems: 'center', ...shadows.md,
+    },
+    saveBtnTxt: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.md, color: colors.onPrimary },
+    successScreen: {
+      flex: 1, backgroundColor: colors.surfaceLowest, alignItems: 'center', justifyContent: 'center',
+    },
+    successContent: { alignItems: 'center' },
+    successEmoji: { fontSize: 60, marginBottom: Spacing.lg },
+    successTitle: { fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.xxl, color: colors.ink },
+    successSub: { fontFamily: FontFamily.body, fontSize: FontSize.md, color: colors.muted, marginTop: Spacing.sm },
+  });
+}

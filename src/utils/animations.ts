@@ -20,8 +20,8 @@ export function usePressAnimation() {
   }));
   return {
     animStyle,
-    onPressIn: () => { scale.value = withSpring(0.97, { damping: 15 }); },
-    onPressOut: () => { scale.value = withSpring(1, { damping: 15 }); },
+    onPressIn: () => { scale.value = withTiming(0.97, { duration: 80 }); },
+    onPressOut: () => { scale.value = withTiming(1, { duration: 120 }); },
   };
 }
 
@@ -33,11 +33,11 @@ export function useShakeAnimation() {
   }));
   const shake = () => {
     x.value = withSequence(
-      withTiming(-10, { duration: 55 }),
-      withTiming(10, { duration: 55 }),
-      withTiming(-6, { duration: 55 }),
-      withTiming(6, { duration: 55 }),
-      withTiming(0, { duration: 55 })
+      withTiming(-8, { duration: 50 }),
+      withTiming(8, { duration: 50 }),
+      withTiming(-5, { duration: 50 }),
+      withTiming(5, { duration: 50 }),
+      withTiming(0, { duration: 50 })
     );
   };
   return { animStyle, shake };
@@ -48,8 +48,8 @@ export function usePulseAnimation() {
   const scale = useSharedValue(1);
   const pulse = () => {
     scale.value = withSequence(
-      withSpring(1.1, { damping: 4 }),
-      withSpring(1, { damping: 8 })
+      withTiming(1.08, { duration: 180 }),
+      withTiming(1, { duration: 180 })
     );
   };
   const animStyle = useAnimatedStyle(() => ({
@@ -58,26 +58,26 @@ export function usePulseAnimation() {
   return { animStyle, pulse };
 }
 
-// ── Entering presets (use as `entering` prop on Animated.View) ──
+// ── Entering presets — subtle, no spring bounce ──
 
-/** Fade + slide up — for list items */
+/** Fade + slide up — for list items, smooth no bounce */
 export const fadeInDown = (delayMs = 0) =>
-  FadeInDown.delay(delayMs).duration(380).springify().damping(18);
+  FadeInDown.delay(delayMs).duration(280);
 
 /** Fade in — for overlays / modals */
 export const fadeIn = (delayMs = 0) =>
-  FadeIn.delay(delayMs).duration(280);
+  FadeIn.delay(delayMs).duration(220);
 
 /** Slide from right — for screen pushes */
 export const slideInRight = () =>
-  SlideInRight.duration(350).springify();
+  SlideInRight.duration(280);
 
 /** Zoom in — for success states / badges */
 export const zoomIn = (delayMs = 0) =>
-  ZoomIn.delay(delayMs).duration(300).springify();
+  ZoomIn.delay(delayMs).duration(250);
 
 /** Staggered list entry delay helper */
-export const staggerDelay = (index: number, base = 60) => index * base;
+export const staggerDelay = (index: number, base = 50) => index * base;
 
 /** Animated layout for list reorders */
-export const springLayout = Layout.springify().damping(18);
+export const springLayout = Layout.duration(250);

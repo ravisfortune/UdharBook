@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform, ScrollView,
@@ -9,7 +9,9 @@ import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
-import { Colors, FontFamily, FontSize, Spacing, Radius, Shadows } from '@theme/tokens';
+import { FontFamily, FontSize, Spacing, Radius } from '@theme/tokens';
+import { useTheme } from '@theme/ThemeContext';
+import { ThemeColors } from '@theme/themes';
 import { useTransactionStore } from '@store/useTransactionStore';
 import { useContactStore } from '@store/useContactStore';
 import { RootStackParamList } from '@/navigation';
@@ -17,18 +19,19 @@ import { useShakeAnimation, fadeInDown } from '@utils/animations';
 import { formatCurrency } from '@utils/currency';
 
 type RouteT = RouteProp<RootStackParamList, 'AddTransaction'>;
-
 type TxnType = 'gave' | 'received';
 
 export default function AddTransactionScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const route = useRoute<RouteT>();
+  const { colors, shadows } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, shadows), [colors]);
 
   const { addTransaction } = useTransactionStore();
   const { contacts } = useContactStore();
 
-  const [txnType, setTxnType] = useState<TxnType>('gave');
+  const [txnType, setTxnType] = useState<TxnType>(route.params?.defaultType ?? 'gave');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
   const [selectedContactId, setSelectedContactId] = useState(route.params?.contactId ?? '');
@@ -39,13 +42,11 @@ export default function AddTransactionScreen() {
   const [saved, setSaved] = useState(false);
 
   const { animStyle: amountShake, shake } = useShakeAnimation();
-
   const parsedAmount = parseFloat(amount.replace(/,/g, ''));
 
   async function handleSave() {
     if (!parsedAmount || parsedAmount <= 0) { shake(); return; }
     if (!selectedContactId) { shake(); return; }
-
     setSaving(true);
     await addTransaction({
       contact_id: selectedContactId,
@@ -54,7 +55,6 @@ export default function AddTransactionScreen() {
       note: note.trim() || undefined,
       date: Date.now(),
     });
-
     setSaved(true);
     setTimeout(() => navigation.goBack(), 900);
   }
@@ -68,7 +68,7 @@ export default function AddTransactionScreen() {
       <View style={styles.successOverlay}>
         <Animated.View entering={ZoomIn.springify()} style={styles.successContent}>
           <View style={styles.successIcon}>
-            <MaterialIcons name="check" size={40} color={Colors.green} />
+            <MaterialIcons name="check" size={40} color={colors.green} />
           </View>
           <Text style={styles.successText}>{t('transaction.success')}</Text>
         </Animated.View>
@@ -78,18 +78,13 @@ export default function AddTransactionScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
-        {/* Handle */}
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <View style={styles.handle} />
 
-        {/* Header */}
         <Animated.View entering={fadeInDown(0)} style={styles.header}>
           <Text style={styles.title}>{t('transaction.title')}</Text>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeBtn}>
-            <MaterialIcons name="close" size={20} color={Colors.muted} />
+            <MaterialIcons name="close" size={20} color={colors.muted} />
           </TouchableOpacity>
         </Animated.View>
 
@@ -109,10 +104,7 @@ export default function AddTransactionScreen() {
                 style={[styles.typeBtn, txnType === 'received' && styles.typeBtnActiveGreen]}
                 onPress={() => setTxnType('received')}
               >
-                <Text style={[
-                  styles.typeBtnText,
-                  txnType === 'received' && styles.typeBtnTextActiveGreen
-                ]}>
+                <Text style={[styles.typeBtnText, txnType === 'received' && styles.typeBtnTextActiveGreen]}>
                   {t('transaction.maineLiya')}
                 </Text>
               </TouchableOpacity>
@@ -124,14 +116,11 @@ export default function AddTransactionScreen() {
             <Text style={styles.amountLabel}>₹</Text>
             <Animated.View style={amountShake}>
               <TextInput
-                style={[
-                  styles.amountInput,
-                  { color: txnType === 'gave' ? Colors.red : Colors.green }
-                ]}
+                style={[styles.amountInput, { color: txnType === 'gave' ? colors.red : colors.green }]}
                 value={amount}
                 onChangeText={setAmount}
                 placeholder="0"
-                placeholderTextColor={Colors.surfaceHigh}
+                placeholderTextColor={colors.surfaceHigh}
                 keyboardType="numeric"
                 autoFocus={!route.params?.contactId}
               />
@@ -149,22 +138,18 @@ export default function AddTransactionScreen() {
                 {selectedContactName ? (
                   <>
                     <View style={styles.miniAvatar}>
-                      <Text style={styles.miniAvatarText}>
-                        {selectedContactName[0].toUpperCase()}
-                      </Text>
+                      <Text style={styles.miniAvatarText}>{selectedContactName[0].toUpperCase()}</Text>
                     </View>
                     <Text style={styles.contactPickerName}>{selectedContactName}</Text>
                   </>
                 ) : (
-                  <Text style={styles.contactPickerPlaceholder}>
-                    {t('transaction.searchContact')}
-                  </Text>
+                  <Text style={styles.contactPickerPlaceholder}>{t('transaction.searchContact')}</Text>
                 )}
               </View>
               <MaterialIcons
                 name={showContactPicker ? 'expand-less' : 'expand-more'}
                 size={20}
-                color={Colors.muted}
+                color={colors.muted}
               />
             </TouchableOpacity>
 
@@ -173,7 +158,7 @@ export default function AddTransactionScreen() {
                 <TextInput
                   style={styles.contactSearch}
                   placeholder={t('transaction.searchContact')}
-                  placeholderTextColor={Colors.mutedLight}
+                  placeholderTextColor={colors.mutedLight}
                   value={contactSearch}
                   onChangeText={setContactSearch}
                   autoFocus
@@ -191,9 +176,7 @@ export default function AddTransactionScreen() {
                       }}
                     >
                       <View style={[styles.miniAvatar, { backgroundColor: c.avatar_color + '22' }]}>
-                        <Text style={[styles.miniAvatarText, { color: c.avatar_color }]}>
-                          {c.avatar_letter}
-                        </Text>
+                        <Text style={[styles.miniAvatarText, { color: c.avatar_color }]}>{c.avatar_letter}</Text>
                       </View>
                       <Text style={styles.contactOptionName}>{c.name}</Text>
                     </TouchableOpacity>
@@ -214,7 +197,7 @@ export default function AddTransactionScreen() {
               value={note}
               onChangeText={setNote}
               placeholder={t('transaction.notePlaceholder')}
-              placeholderTextColor={Colors.mutedLight}
+              placeholderTextColor={colors.mutedLight}
               multiline
               returnKeyType="done"
             />
@@ -236,7 +219,7 @@ export default function AddTransactionScreen() {
           <TouchableOpacity
             style={[
               styles.saveBtn,
-              { backgroundColor: txnType === 'gave' ? Colors.primary : Colors.greenBg },
+              { backgroundColor: txnType === 'gave' ? colors.primary : colors.greenBg },
               saving && { opacity: 0.6 },
             ]}
             onPress={handleSave}
@@ -252,136 +235,95 @@ export default function AddTransactionScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.surfaceLowest },
-  handle: {
-    width: 36, height: 4, borderRadius: 2,
-    backgroundColor: Colors.surfaceHigh,
-    alignSelf: 'center',
-    marginTop: Spacing.md, marginBottom: Spacing.xl,
-  },
-  header: {
-    flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xl, marginBottom: Spacing.xl,
-  },
-  title: {
-    fontFamily: FontFamily.displayExtraBold,
-    fontSize: FontSize.xxl, color: Colors.ink,
-  },
-  closeBtn: {
-    width: 36, height: 36, borderRadius: Radius.full,
-    backgroundColor: Colors.surfaceLow,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  section: { paddingHorizontal: Spacing.xl, marginBottom: Spacing.xxl },
-  typeToggle: {
-    flexDirection: 'row', gap: Spacing.sm,
-    backgroundColor: Colors.surfaceLow,
-    borderRadius: Radius.lg, padding: 4,
-  },
-  typeBtn: {
-    flex: 1, paddingVertical: Spacing.md,
-    borderRadius: Radius.md, alignItems: 'center',
-  },
-  typeBtnActive: { backgroundColor: Colors.primary, ...Shadows.sm },
-  typeBtnActiveGreen: { backgroundColor: Colors.greenBg, ...Shadows.sm },
-  typeBtnText: {
-    fontFamily: FontFamily.bodyMedium,
-    fontSize: FontSize.sm, color: Colors.muted,
-  },
-  typeBtnTextActive: { color: Colors.onPrimary, fontFamily: FontFamily.bodySemiBold },
-  typeBtnTextActiveGreen: { color: '#fff', fontFamily: FontFamily.bodySemiBold },
-  amountLabel: {
-    fontFamily: FontFamily.displayExtraBold,
-    fontSize: 48, color: Colors.surfaceHigh,
-    position: 'absolute', top: 8, left: Spacing.xl + 4,
-  },
-  amountInput: {
-    fontFamily: FontFamily.displayExtraBold,
-    fontSize: 56, letterSpacing: -2,
-    paddingLeft: 48,
-    minHeight: 80,
-  },
-  fieldLabel: {
-    fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs,
-    color: Colors.muted, textTransform: 'uppercase',
-    letterSpacing: 0.8, marginBottom: Spacing.sm,
-  },
-  contactPickerBtn: {
-    flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: Colors.surfaceLow,
-    borderRadius: Radius.md, padding: Spacing.lg,
-  },
-  contactPickerLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  contactPickerName: {
-    fontFamily: FontFamily.bodyMedium,
-    fontSize: FontSize.md, color: Colors.ink,
-  },
-  contactPickerPlaceholder: {
-    fontFamily: FontFamily.body, fontSize: FontSize.md, color: Colors.mutedLight,
-  },
-  contactDropdown: {
-    marginTop: Spacing.sm,
-    backgroundColor: Colors.surfaceLowest,
-    borderRadius: Radius.md, overflow: 'hidden',
-    ...Shadows.md,
-  },
-  contactSearch: {
-    padding: Spacing.md,
-    fontFamily: FontFamily.body, fontSize: FontSize.md, color: Colors.ink,
-    borderBottomWidth: 1, borderBottomColor: Colors.surfaceLow,
-  },
-  contactOption: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
-    padding: Spacing.md,
-  },
-  contactOptionName: {
-    fontFamily: FontFamily.bodyMedium, fontSize: FontSize.md, color: Colors.ink,
-  },
-  noContactsText: {
-    fontFamily: FontFamily.body, fontSize: FontSize.sm, color: Colors.muted,
-    padding: Spacing.md, textAlign: 'center',
-  },
-  miniAvatar: {
-    width: 32, height: 32, borderRadius: Radius.full,
-    backgroundColor: Colors.primaryFixed,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  miniAvatarText: {
-    fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.sm, color: Colors.primary,
-  },
-  noteInput: {
-    backgroundColor: Colors.surfaceLow, borderRadius: Radius.md,
-    padding: Spacing.lg, fontFamily: FontFamily.body,
-    fontSize: FontSize.md, color: Colors.ink, minHeight: 60,
-  },
-  footer: { padding: Spacing.xl, paddingTop: 0 },
-  previewText: {
-    fontFamily: FontFamily.body, fontSize: FontSize.sm, color: Colors.muted,
-    textAlign: 'center', marginBottom: Spacing.md,
-  },
-  saveBtn: {
-    borderRadius: Radius.full, padding: Spacing.lg,
-    alignItems: 'center', ...Shadows.md,
-  },
-  saveBtnText: {
-    fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.lg, color: '#fff',
-  },
-  successOverlay: {
-    flex: 1, backgroundColor: Colors.surfaceLowest,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  successContent: { alignItems: 'center' },
-  successIcon: {
-    width: 80, height: 80, borderRadius: Radius.full,
-    backgroundColor: Colors.greenContainer,
-    alignItems: 'center', justifyContent: 'center',
-    marginBottom: Spacing.lg,
-  },
-  successText: {
-    fontFamily: FontFamily.displaySemiBold,
-    fontSize: FontSize.xl, color: Colors.greenBg,
-  },
-});
+function makeStyles(colors: ThemeColors, shadows: any) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.cardBg },
+    handle: {
+      width: 36, height: 4, borderRadius: 2,
+      backgroundColor: colors.surfaceHigh,
+      alignSelf: 'center', marginTop: Spacing.md, marginBottom: Spacing.xl,
+    },
+    header: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      paddingHorizontal: Spacing.xl, marginBottom: Spacing.xl,
+    },
+    title: { fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.xxl, color: colors.ink },
+    closeBtn: {
+      width: 36, height: 36, borderRadius: Radius.full,
+      backgroundColor: colors.surfaceLow, alignItems: 'center', justifyContent: 'center',
+    },
+    section: { paddingHorizontal: Spacing.xl, marginBottom: Spacing.xxl },
+    typeToggle: {
+      flexDirection: 'row', gap: Spacing.sm,
+      backgroundColor: colors.surfaceLow, borderRadius: Radius.lg, padding: 4,
+    },
+    typeBtn: { flex: 1, paddingVertical: Spacing.md, borderRadius: Radius.md, alignItems: 'center' },
+    typeBtnActive: { backgroundColor: colors.primary, ...shadows.sm },
+    typeBtnActiveGreen: { backgroundColor: colors.greenBg, ...shadows.sm },
+    typeBtnText: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.sm, color: colors.muted },
+    typeBtnTextActive: { color: colors.onPrimary, fontFamily: FontFamily.bodySemiBold },
+    typeBtnTextActiveGreen: { color: '#fff', fontFamily: FontFamily.bodySemiBold },
+    amountLabel: {
+      fontFamily: FontFamily.displayExtraBold, fontSize: 48,
+      color: colors.surfaceHigh, position: 'absolute', top: 8, left: Spacing.xl + 4,
+    },
+    amountInput: {
+      fontFamily: FontFamily.displayExtraBold, fontSize: 56,
+      letterSpacing: -2, paddingLeft: 48, minHeight: 80,
+    },
+    fieldLabel: {
+      fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs,
+      color: colors.muted, textTransform: 'uppercase',
+      letterSpacing: 0.8, marginBottom: Spacing.sm,
+    },
+    contactPickerBtn: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      backgroundColor: colors.surfaceLow, borderRadius: Radius.md, padding: Spacing.lg,
+    },
+    contactPickerLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+    contactPickerName: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.md, color: colors.ink },
+    contactPickerPlaceholder: { fontFamily: FontFamily.body, fontSize: FontSize.md, color: colors.mutedLight },
+    contactDropdown: {
+      marginTop: Spacing.sm, backgroundColor: colors.cardBg,
+      borderRadius: Radius.md, overflow: 'hidden', ...shadows.md,
+    },
+    contactSearch: {
+      padding: Spacing.md, fontFamily: FontFamily.body,
+      fontSize: FontSize.md, color: colors.ink,
+      borderBottomWidth: 1, borderBottomColor: colors.surfaceLow,
+    },
+    contactOption: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: Spacing.md },
+    contactOptionName: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.md, color: colors.ink },
+    noContactsText: {
+      fontFamily: FontFamily.body, fontSize: FontSize.sm,
+      color: colors.muted, padding: Spacing.md, textAlign: 'center',
+    },
+    miniAvatar: {
+      width: 32, height: 32, borderRadius: Radius.full,
+      backgroundColor: colors.primaryFixed, alignItems: 'center', justifyContent: 'center',
+    },
+    miniAvatarText: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.sm, color: colors.primary },
+    noteInput: {
+      backgroundColor: colors.surfaceLow, borderRadius: Radius.md,
+      padding: Spacing.lg, fontFamily: FontFamily.body,
+      fontSize: FontSize.md, color: colors.ink, minHeight: 60,
+    },
+    footer: { padding: Spacing.xl, paddingTop: 0 },
+    previewText: {
+      fontFamily: FontFamily.body, fontSize: FontSize.sm,
+      color: colors.muted, textAlign: 'center', marginBottom: Spacing.md,
+    },
+    saveBtn: { borderRadius: Radius.full, padding: Spacing.lg, alignItems: 'center', ...shadows.md },
+    saveBtnText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.lg, color: '#fff' },
+    successOverlay: {
+      flex: 1, backgroundColor: colors.cardBg, alignItems: 'center', justifyContent: 'center',
+    },
+    successContent: { alignItems: 'center' },
+    successIcon: {
+      width: 80, height: 80, borderRadius: Radius.full,
+      backgroundColor: colors.greenContainer,
+      alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.lg,
+    },
+    successText: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.xl, color: colors.greenBg },
+  });
+}

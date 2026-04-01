@@ -41,7 +41,8 @@ export async function initDB(): Promise<SQLite.SQLiteDatabase> {
       split_method TEXT,
       total_amount REAL NOT NULL,
       created_at INTEGER NOT NULL,
-      settled INTEGER DEFAULT 0
+      settled INTEGER DEFAULT 0,
+      synced INTEGER DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS split_members (

@@ -6,6 +6,8 @@ import {
   deleteTransaction,
 } from '@db/transactions';
 import { useContactStore } from './useContactStore';
+import { triggerSync } from '@services/sync';
+import { useAuthStore } from './useAuthStore';
 
 interface TransactionStore {
   transactions: Transaction[];
@@ -30,8 +32,9 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
 
   addTransaction: async (data) => {
     const txn = await createTransaction({ ...data, split_id: undefined });
-    // Refresh contact balances
     await useContactStore.getState().loadContacts();
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) triggerSync(userId);
     return txn;
   },
 
@@ -40,5 +43,7 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
     const transactions = await getTransactionsByContact(contactId);
     set({ transactions });
     await useContactStore.getState().loadContacts();
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) triggerSync(userId);
   },
 }));

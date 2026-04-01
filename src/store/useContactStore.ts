@@ -8,6 +8,8 @@ import {
   deleteContact,
   getTotals,
 } from '@db/contacts';
+import { triggerSync } from '@services/sync';
+import { useAuthStore } from './useAuthStore';
 
 interface ContactStore {
   contacts: ContactWithBalance[];
@@ -44,12 +46,16 @@ export const useContactStore = create<ContactStore>((set, get) => ({
   addContact: async (name, phone) => {
     const contact = await createContact(name, phone);
     await get().loadContacts();
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) triggerSync(userId);
     return contact;
   },
 
   removeContact: async (id) => {
     await deleteContact(id);
     await get().loadContacts();
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) triggerSync(userId);
   },
 
   getContact: async (id) => getContactById(id),

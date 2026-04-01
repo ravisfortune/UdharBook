@@ -33,6 +33,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: false,
     bundleIdentifier: bundleIdIos,
+    infoPlist: {
+      LSApplicationQueriesSchemes: ['whatsapp', 'sms'],
+    },
   },
   android: {
     adaptiveIcon: {
@@ -45,7 +48,24 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   web: {
     favicon: "./assets/favicon.png",
   },
+  scheme: "udharbook",
+  plugins: [
+    "expo-localization",
+    "expo-web-browser",
+    "@react-native-community/datetimepicker",
+    [
+      "expo-notifications",
+      {
+        icon: `./assets/brands/${brandId}/icon.png`,
+        color: splashColor,
+        androidMode: "default",
+      },
+    ],
+  ],
   extra: {
     brandId,
+    eas: {
+      projectId: '800a4d79-2ff3-4f99-b790-fb0c1ff3f0e6',
+    },
   },
 });

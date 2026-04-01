@@ -8,18 +8,23 @@ import { useNavigation } from '@react-navigation/native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { Colors, FontFamily, FontSize, Spacing, Radius, Shadows } from '@theme/tokens';
+import { FontFamily, FontSize, Spacing, Radius } from '@theme/tokens';
+import { useTheme } from '@theme/ThemeContext';
+import { ThemeColors } from '@theme/themes';
 import { useSplitStore } from '@store/useSplitStore';
 import ContactPicker from '@components/ContactPicker';
 import { formatCurrency } from '@utils/currency';
 import { fullDate } from '@utils/date';
 import { fadeInDown } from '@utils/animations';
+import { scheduleEmiReminders } from '@services/notifications';
 
 const MIN_EMI = 2;
 const MAX_EMI = 24;
 
 export default function SplitLoanScreen() {
   const navigation = useNavigation();
+  const { colors, shadows } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, shadows), [colors]);
   const store = useSplitStore();
   const [installments, setInstallments] = useState(3);
   const [startDate] = useState(Date.now());
@@ -45,7 +50,10 @@ export default function SplitLoanScreen() {
     if (!contact || store.totalAmount <= 0) return;
     setSaving(true);
     try {
-      await store.saveSplit();
+      const splitId = await store.saveSplit();
+      // Schedule EMI reminders (1 day before each due date)
+      const dueDates = schedule.map(e => new Date(e.date));
+      scheduleEmiReminders(splitId ?? 'loan', contact.name, emiAmount, dueDates).catch(() => {});
       setSaved(true);
       setTimeout(() => navigation.goBack(), 900);
     } catch {
@@ -70,7 +78,7 @@ export default function SplitLoanScreen() {
     <SafeAreaView style={styles.container}>
       <Animated.View entering={FadeInDown.duration(300)} style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <MaterialIcons name="arrow-back" size={22} color={Colors.ink} />
+          <MaterialIcons name="arrow-back" size={22} color={colors.ink} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Loan EMI Split</Text>
         <View style={{ width: 40 }} />
@@ -96,7 +104,7 @@ export default function SplitLoanScreen() {
                 >
                   <Text style={[
                     styles.quickAmtTxt,
-                    store.totalAmount === v && { color: Colors.onPrimary },
+                    store.totalAmount === v && { color: colors.primary },
                   ]}>
                     {v >= 1000 ? `${v / 1000}K` : v}
                   </Text>
@@ -141,7 +149,7 @@ export default function SplitLoanScreen() {
                 onPress={() => setInstallments(Math.max(MIN_EMI, installments - 1))}
                 disabled={installments <= MIN_EMI}
               >
-                <MaterialIcons name="remove" size={20} color={Colors.ink} />
+                <MaterialIcons name="remove" size={20} color={colors.ink} />
               </TouchableOpacity>
 
               <View style={styles.sliderTrack}>
@@ -157,7 +165,7 @@ export default function SplitLoanScreen() {
                 onPress={() => setInstallments(Math.min(MAX_EMI, installments + 1))}
                 disabled={installments >= MAX_EMI}
               >
-                <MaterialIcons name="add" size={20} color={Colors.ink} />
+                <MaterialIcons name="add" size={20} color={colors.ink} />
               </TouchableOpacity>
             </View>
 
@@ -169,7 +177,7 @@ export default function SplitLoanScreen() {
                   style={[styles.preset, installments === n && styles.presetActive]}
                   onPress={() => setInstallments(n)}
                 >
-                  <Text style={[styles.presetTxt, installments === n && { color: Colors.onPrimary }]}>
+                  <Text style={[styles.presetTxt, installments === n && { color: colors.onPrimary }]}>
                     {n}m
                   </Text>
                 </TouchableOpacity>
@@ -234,107 +242,109 @@ export default function SplitLoanScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.surface },
-  header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md,
-  },
-  backBtn: {
-    width: 40, height: 40, borderRadius: Radius.full,
-    backgroundColor: Colors.surfaceLowest, alignItems: 'center', justifyContent: 'center',
-    ...Shadows.sm,
-  },
-  headerTitle: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg, color: Colors.ink },
-  content: { paddingHorizontal: Spacing.xl, paddingBottom: 120 },
-  fieldLabel: {
-    fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs, color: Colors.muted,
-    textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: Spacing.sm,
-  },
-  amountCard: {
-    backgroundColor: Colors.primary, borderRadius: Radius.xl,
-    padding: Spacing.xxl, alignItems: 'center', ...Shadows.lg,
-  },
-  amountDisplay: {
-    fontFamily: FontFamily.displayExtraBold, fontSize: 40,
-    color: '#fff', letterSpacing: -1, marginBottom: Spacing.lg,
-  },
-  amountBtns: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, justifyContent: 'center' },
-  quickAmt: {
-    paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm,
-    backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: Radius.full,
-  },
-  quickAmtActive: { backgroundColor: '#fff' },
-  quickAmtTxt: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.sm, color: 'rgba(255,255,255,0.9)' },
-  sliderHeader: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md,
-  },
-  emiBadge: {
-    backgroundColor: Colors.primaryFixed, borderRadius: Radius.full,
-    paddingHorizontal: 12, paddingVertical: 4,
-  },
-  emiBadgeTxt: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: Colors.primary },
-  sliderRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.md },
-  sliderBtn: {
-    width: 40, height: 40, borderRadius: Radius.full,
-    backgroundColor: Colors.surfaceLowest, alignItems: 'center', justifyContent: 'center',
-    ...Shadows.sm,
-  },
-  sliderBtnDisabled: { opacity: 0.3 },
-  sliderTrack: {
-    flex: 1, height: 8, backgroundColor: Colors.surfaceHigh,
-    borderRadius: Radius.full, overflow: 'hidden', position: 'relative',
-    alignItems: 'center', justifyContent: 'center',
-  },
-  sliderFill: {
-    position: 'absolute', left: 0, top: 0, bottom: 0,
-    backgroundColor: Colors.primary, borderRadius: Radius.full,
-  },
-  sliderValue: {
-    fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.sm, color: Colors.onPrimary, zIndex: 1,
-  },
-  presets: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.xl },
-  preset: {
-    flex: 1, paddingVertical: Spacing.sm, alignItems: 'center',
-    backgroundColor: Colors.surfaceLow, borderRadius: Radius.full,
-  },
-  presetActive: { backgroundColor: Colors.primary },
-  presetTxt: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: Colors.muted },
-  emiCard: {
-    flexDirection: 'row', backgroundColor: Colors.surfaceLowest,
-    borderRadius: Radius.lg, padding: Spacing.lg, ...Shadows.md,
-  },
-  emiStat: { flex: 1, alignItems: 'center' },
-  emiStatLabel: { fontFamily: FontFamily.body, fontSize: FontSize.xs, color: Colors.muted, marginBottom: 4 },
-  emiStatValue: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg, color: Colors.ink },
-  emiDivider: { width: 1, backgroundColor: Colors.surfaceLow, marginHorizontal: Spacing.sm },
-  scheduleRow: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
-    backgroundColor: Colors.surfaceLowest, borderRadius: Radius.md,
-    padding: Spacing.md, marginBottom: Spacing.sm, ...Shadows.sm,
-  },
-  emiIndex: {
-    width: 28, height: 28, borderRadius: Radius.full,
-    backgroundColor: Colors.primaryFixed, alignItems: 'center', justifyContent: 'center',
-  },
-  emiIndexTxt: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.xs, color: Colors.primary },
-  scheduleDate: { flex: 1, fontFamily: FontFamily.body, fontSize: FontSize.sm, color: Colors.muted },
-  scheduleAmt: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.md, color: Colors.ink },
-  footer: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    padding: Spacing.xl, backgroundColor: Colors.surfaceLowest,
-    borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl, ...Shadows.lg,
-  },
-  saveBtn: {
-    backgroundColor: Colors.primary, borderRadius: Radius.full,
-    padding: Spacing.lg, alignItems: 'center', ...Shadows.md,
-  },
-  saveBtnTxt: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.md, color: Colors.onPrimary },
-  successScreen: {
-    flex: 1, backgroundColor: Colors.surfaceLowest, alignItems: 'center', justifyContent: 'center',
-  },
-  successContent: { alignItems: 'center' },
-  successEmoji: { fontSize: 60, marginBottom: Spacing.lg },
-  successTitle: { fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.xxl, color: Colors.ink },
-  successSub: { fontFamily: FontFamily.body, fontSize: FontSize.md, color: Colors.muted, marginTop: Spacing.sm },
-});
+function makeStyles(colors: ThemeColors, shadows: any) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    header: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md,
+    },
+    backBtn: {
+      width: 40, height: 40, borderRadius: Radius.full,
+      backgroundColor: colors.surfaceLowest, alignItems: 'center', justifyContent: 'center',
+      ...shadows.sm,
+    },
+    headerTitle: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg, color: colors.ink },
+    content: { paddingHorizontal: Spacing.xl, paddingBottom: 120 },
+    fieldLabel: {
+      fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs, color: colors.muted,
+      textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: Spacing.sm,
+    },
+    amountCard: {
+      backgroundColor: colors.primary, borderRadius: Radius.xl,
+      padding: Spacing.xxl, alignItems: 'center', ...shadows.lg,
+    },
+    amountDisplay: {
+      fontFamily: FontFamily.displayExtraBold, fontSize: 40,
+      color: colors.onPrimary, letterSpacing: -1, marginBottom: Spacing.lg,
+    },
+    amountBtns: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, justifyContent: 'center' },
+    quickAmt: {
+      paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm,
+      backgroundColor: colors.onPrimary + '26', borderRadius: Radius.full,
+    },
+    quickAmtActive: { backgroundColor: colors.onPrimary },
+    quickAmtTxt: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.sm, color: colors.onPrimary + 'E5' },
+    sliderHeader: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md,
+    },
+    emiBadge: {
+      backgroundColor: colors.primaryFixed, borderRadius: Radius.full,
+      paddingHorizontal: 12, paddingVertical: 4,
+    },
+    emiBadgeTxt: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: colors.primary },
+    sliderRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.md },
+    sliderBtn: {
+      width: 40, height: 40, borderRadius: Radius.full,
+      backgroundColor: colors.surfaceLowest, alignItems: 'center', justifyContent: 'center',
+      ...shadows.sm,
+    },
+    sliderBtnDisabled: { opacity: 0.3 },
+    sliderTrack: {
+      flex: 1, height: 8, backgroundColor: colors.surfaceHigh,
+      borderRadius: Radius.full, overflow: 'hidden', position: 'relative',
+      alignItems: 'center', justifyContent: 'center',
+    },
+    sliderFill: {
+      position: 'absolute', left: 0, top: 0, bottom: 0,
+      backgroundColor: colors.primary, borderRadius: Radius.full,
+    },
+    sliderValue: {
+      fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.sm, color: colors.onPrimary, zIndex: 1,
+    },
+    presets: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.xl },
+    preset: {
+      flex: 1, paddingVertical: Spacing.sm, alignItems: 'center',
+      backgroundColor: colors.surfaceLow, borderRadius: Radius.full,
+    },
+    presetActive: { backgroundColor: colors.primary },
+    presetTxt: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: colors.muted },
+    emiCard: {
+      flexDirection: 'row', backgroundColor: colors.surfaceLowest,
+      borderRadius: Radius.lg, padding: Spacing.lg, ...shadows.md,
+    },
+    emiStat: { flex: 1, alignItems: 'center' },
+    emiStatLabel: { fontFamily: FontFamily.body, fontSize: FontSize.xs, color: colors.muted, marginBottom: 4 },
+    emiStatValue: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg, color: colors.ink },
+    emiDivider: { width: 1, backgroundColor: colors.surfaceLow, marginHorizontal: Spacing.sm },
+    scheduleRow: {
+      flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+      backgroundColor: colors.surfaceLowest, borderRadius: Radius.md,
+      padding: Spacing.md, marginBottom: Spacing.sm, ...shadows.sm,
+    },
+    emiIndex: {
+      width: 28, height: 28, borderRadius: Radius.full,
+      backgroundColor: colors.primaryFixed, alignItems: 'center', justifyContent: 'center',
+    },
+    emiIndexTxt: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.xs, color: colors.primary },
+    scheduleDate: { flex: 1, fontFamily: FontFamily.body, fontSize: FontSize.sm, color: colors.muted },
+    scheduleAmt: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.md, color: colors.ink },
+    footer: {
+      position: 'absolute', bottom: 0, left: 0, right: 0,
+      padding: Spacing.xl, backgroundColor: colors.surfaceLowest,
+      borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl, ...shadows.lg,
+    },
+    saveBtn: {
+      backgroundColor: colors.primary, borderRadius: Radius.full,
+      padding: Spacing.lg, alignItems: 'center', ...shadows.md,
+    },
+    saveBtnTxt: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.md, color: colors.onPrimary },
+    successScreen: {
+      flex: 1, backgroundColor: colors.surfaceLowest, alignItems: 'center', justifyContent: 'center',
+    },
+    successContent: { alignItems: 'center' },
+    successEmoji: { fontSize: 60, marginBottom: Spacing.lg },
+    successTitle: { fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.xxl, color: colors.ink },
+    successSub: { fontFamily: FontFamily.body, fontSize: FontSize.md, color: colors.muted, marginTop: Spacing.sm },
+  });
+}

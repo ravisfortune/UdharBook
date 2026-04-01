@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   ScrollView, StyleSheet, Alert,
@@ -9,8 +9,10 @@ import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
-import { Colors, FontFamily, FontSize, Spacing, Radius, Shadows } from '@theme/tokens';
-import { useSplitStore, SplitMemberDraft } from '@store/useSplitStore';
+import { FontFamily, FontSize, Spacing, Radius } from '@theme/tokens';
+import { useTheme } from '@theme/ThemeContext';
+import { ThemeColors } from '@theme/themes';
+import { useSplitStore } from '@store/useSplitStore';
 import ContactPicker from '@components/ContactPicker';
 import { formatCurrency } from '@utils/currency';
 import { usePressAnimation, fadeInDown } from '@utils/animations';
@@ -27,6 +29,8 @@ const METHODS = [
 export default function SplitBillScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
+  const { colors, shadows } = useTheme();
+  const styles = useMemo(() => makeStyles(colors, shadows), [colors]);
   const store = useSplitStore();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -34,6 +38,12 @@ export default function SplitBillScreen() {
   const totalAssigned = store.members.reduce((s, m) => s + m.amount, 0);
   const totalPct = store.members.reduce((s, m) => s + m.percentage, 0);
   const isValid = store.totalAmount > 0 && store.members.length >= 2;
+
+  const step2Valid = store.members.length >= 2 && (() => {
+    if (store.method === 'percent') return Math.abs(totalPct - 100) < 0.01;
+    if (store.method === 'equal') return true;
+    return Math.abs(totalAssigned - store.totalAmount) < 1;
+  })();
 
   async function handleSave() {
     if (!isValid) return;
@@ -65,7 +75,7 @@ export default function SplitBillScreen() {
       {/* Header */}
       <Animated.View entering={FadeInDown.duration(300)} style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <MaterialIcons name="arrow-back" size={22} color={Colors.ink} />
+          <MaterialIcons name="arrow-back" size={22} color={colors.ink} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Bill Split</Text>
         <View style={{ width: 40 }} />
@@ -121,7 +131,7 @@ export default function SplitBillScreen() {
               value={store.title}
               onChangeText={store.setTitle}
               placeholder="e.g. Dinner at Barbeque Nation"
-              placeholderTextColor={Colors.mutedLight}
+              placeholderTextColor={colors.mutedLight}
             />
 
             {/* Total amount */}
@@ -133,7 +143,7 @@ export default function SplitBillScreen() {
                 value={store.totalAmount > 0 ? String(store.totalAmount) : ''}
                 onChangeText={v => store.setTotalAmount(parseFloat(v) || 0)}
                 placeholder="0"
-                placeholderTextColor={Colors.surfaceHigh}
+                placeholderTextColor={colors.surfaceHigh}
                 keyboardType="numeric"
               />
             </View>
@@ -150,7 +160,7 @@ export default function SplitBillScreen() {
                   <MaterialIcons
                     name={m.icon as any}
                     size={22}
-                    color={store.method === m.key ? Colors.onPrimary : Colors.muted}
+                    color={store.method === m.key ? colors.onPrimary : colors.muted}
                   />
                   <Text style={[
                     styles.methodLabel,
@@ -186,7 +196,7 @@ export default function SplitBillScreen() {
                   <Text style={styles.fieldLabel}>Amounts</Text>
                   {store.method === 'equal' && (
                     <TouchableOpacity onPress={store.equalSplit} style={styles.equalBtn}>
-                      <MaterialIcons name="grid-on" size={14} color={Colors.primary} />
+                      <MaterialIcons name="grid-on" size={14} color={colors.primary} />
                       <Text style={styles.equalBtnText}>Re-split equally</Text>
                     </TouchableOpacity>
                   )}
@@ -213,7 +223,7 @@ export default function SplitBillScreen() {
                           onChangeText={v => store.updateMemberPercent(m.contactId, parseFloat(v) || 0)}
                           keyboardType="numeric"
                           placeholder="0"
-                          placeholderTextColor={Colors.mutedLight}
+                          placeholderTextColor={colors.mutedLight}
                         />
                         <Text style={styles.pctSign}>%</Text>
                       </View>
@@ -226,7 +236,7 @@ export default function SplitBillScreen() {
                           onChangeText={v => store.updateMemberAmount(m.contactId, parseFloat(v) || 0)}
                           keyboardType="numeric"
                           placeholder="0"
-                          placeholderTextColor={Colors.mutedLight}
+                          placeholderTextColor={colors.mutedLight}
                           editable={store.method !== 'equal' && store.method !== 'item'}
                         />
                       </View>
@@ -243,8 +253,8 @@ export default function SplitBillScreen() {
                     styles.totalBarValue,
                     {
                       color: store.method === 'percent'
-                        ? (Math.abs(totalPct - 100) < 0.01 ? Colors.green : Colors.red)
-                        : (Math.abs(totalAssigned - store.totalAmount) < 1 ? Colors.green : Colors.red)
+                        ? (Math.abs(totalPct - 100) < 0.01 ? colors.green : colors.red)
+                        : (Math.abs(totalAssigned - store.totalAmount) < 1 ? colors.green : colors.red)
                     }
                   ]}>
                     {store.method === 'percent'
@@ -266,14 +276,14 @@ export default function SplitBillScreen() {
                       value={item.name}
                       onChangeText={v => store.updateItem(item.id, { name: v })}
                       placeholder="Item name"
-                      placeholderTextColor={Colors.mutedLight}
+                      placeholderTextColor={colors.mutedLight}
                     />
                     <TextInput
                       style={[styles.itemInput, { flex: 1 }]}
                       value={item.price > 0 ? String(item.price) : ''}
                       onChangeText={v => store.updateItem(item.id, { price: parseFloat(v) || 0 })}
                       placeholder="₹0"
-                      placeholderTextColor={Colors.mutedLight}
+                      placeholderTextColor={colors.mutedLight}
                       keyboardType="numeric"
                     />
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1.5 }}>
@@ -288,13 +298,13 @@ export default function SplitBillScreen() {
                         >
                           <Text style={[
                             styles.ownerChipText,
-                            item.ownerId === m.contactId && { color: Colors.onPrimary },
+                            item.ownerId === m.contactId && { color: colors.onPrimary },
                           ]}>{m.name.split(' ')[0]}</Text>
                         </TouchableOpacity>
                       ))}
                     </ScrollView>
                     <TouchableOpacity onPress={() => store.removeItem(item.id)}>
-                      <MaterialIcons name="remove-circle-outline" size={20} color={Colors.red} />
+                      <MaterialIcons name="remove-circle-outline" size={20} color={colors.red} />
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -302,7 +312,7 @@ export default function SplitBillScreen() {
                   style={styles.addItemBtn}
                   onPress={() => store.addItem('', 0, store.members[0]?.contactId ?? '')}
                 >
-                  <MaterialIcons name="add" size={16} color={Colors.primary} />
+                  <MaterialIcons name="add" size={16} color={colors.primary} />
                   <Text style={styles.addItemText}>Add Item</Text>
                 </TouchableOpacity>
               </Animated.View>
@@ -355,20 +365,29 @@ export default function SplitBillScreen() {
       {/* Bottom CTA */}
       <Animated.View entering={FadeInDown.delay(200).duration(300)} style={styles.footer}>
         {store.step < 3 ? (
-          <TouchableOpacity
-            style={[styles.nextBtn, !isValid && store.step === 1 && styles.nextBtnDisabled]}
-            onPress={() => {
-              if (store.step === 1 && store.totalAmount > 0) {
-                store.setStep(2);
-              } else if (store.step === 2 && store.members.length >= 2) {
-                store.setStep(3);
-              }
-            }}
-          >
-            <Text style={styles.nextBtnText}>
-              {store.step === 2 ? 'Preview →' : 'Next →'}
-            </Text>
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity
+              style={[
+                styles.nextBtn,
+                (store.step === 1 && store.totalAmount <= 0) && styles.nextBtnDisabled,
+                (store.step === 2 && !step2Valid) && styles.nextBtnDisabled,
+              ]}
+              onPress={() => {
+                if (store.step === 1 && store.totalAmount > 0) store.setStep(2);
+                else if (store.step === 2 && step2Valid) store.setStep(3);
+              }}
+              disabled={(store.step === 1 && store.totalAmount <= 0) || (store.step === 2 && !step2Valid)}
+            >
+              <Text style={styles.nextBtnText}>
+                {store.step === 2 ? 'Preview →' : 'Next →'}
+              </Text>
+            </TouchableOpacity>
+            {store.step === 2 && store.method === 'percent' && Math.abs(totalPct - 100) > 0.01 && (
+              <Text style={styles.validationHint}>
+                Total {totalPct.toFixed(1)}% — 100% hona chahiye aage badhne ke liye
+              </Text>
+            )}
+          </>
         ) : (
           <View style={styles.footerRow}>
             <TouchableOpacity
@@ -393,200 +412,206 @@ export default function SplitBillScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.surface },
-  header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md,
-  },
-  backBtn: {
-    width: 40, height: 40, borderRadius: Radius.full,
-    backgroundColor: Colors.surfaceLowest, alignItems: 'center', justifyContent: 'center',
-    ...Shadows.sm,
-  },
-  headerTitle: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg, color: Colors.ink },
-  stepRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    paddingHorizontal: Spacing.xl, marginBottom: Spacing.xl, gap: 0,
-  },
-  stepItem: { flexDirection: 'row', alignItems: 'center' },
-  stepDot: {
-    width: 32, height: 32, borderRadius: Radius.full,
-    backgroundColor: Colors.surfaceHigh, alignItems: 'center', justifyContent: 'center',
-  },
-  stepDotActive: { backgroundColor: Colors.primaryFixed },
-  stepDotCurrent: { backgroundColor: Colors.primary },
-  stepNum: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: Colors.muted },
-  stepNumActive: { color: Colors.primary },
-  stepLine: { width: 48, height: 2, backgroundColor: Colors.surfaceHigh, marginHorizontal: 4 },
-  stepLineActive: { backgroundColor: Colors.primaryFixed },
-  stepContent: { paddingHorizontal: Spacing.xl },
-  stepTitle: {
-    fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.xxl,
-    color: Colors.ink, marginBottom: Spacing.xl,
-  },
-  fieldLabel: {
-    fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs, color: Colors.muted,
-    textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: Spacing.sm,
-  },
-  emojiRow: { marginBottom: Spacing.sm },
-  emojiBtn: {
-    width: 44, height: 44, borderRadius: Radius.md,
-    backgroundColor: Colors.surfaceLow, alignItems: 'center', justifyContent: 'center',
-    marginRight: Spacing.sm,
-  },
-  emojiBtnActive: { backgroundColor: Colors.primaryFixed, borderWidth: 2, borderColor: Colors.primary },
-  emojiText: { fontSize: 22 },
-  input: {
-    backgroundColor: Colors.surfaceLow, borderRadius: Radius.md,
-    padding: Spacing.lg, fontFamily: FontFamily.bodyMedium,
-    fontSize: FontSize.md, color: Colors.ink,
-  },
-  amountRow: { flexDirection: 'row', alignItems: 'center' },
-  rupeeSign: {
-    fontFamily: FontFamily.displayExtraBold, fontSize: 36,
-    color: Colors.surfaceHigh, marginRight: Spacing.sm,
-  },
-  amountInput: {
-    fontFamily: FontFamily.displayExtraBold, fontSize: 44,
-    color: Colors.primary, flex: 1, letterSpacing: -1,
-  },
-  methodGrid: {
-    flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm,
-  },
-  methodCard: {
-    width: '47%', alignItems: 'center', gap: Spacing.sm,
-    paddingVertical: Spacing.lg, backgroundColor: Colors.surfaceLowest,
-    borderRadius: Radius.lg, ...Shadows.sm,
-  },
-  methodCardActive: { backgroundColor: Colors.primary },
-  methodLabel: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.sm, color: Colors.muted },
-  methodLabelActive: { color: Colors.onPrimary, fontFamily: FontFamily.bodySemiBold },
-  membersSection: { marginTop: Spacing.xl },
-  membersSectionHeader: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', marginBottom: Spacing.sm,
-  },
-  equalBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: Colors.primaryFixed, borderRadius: Radius.full,
-    paddingHorizontal: 10, paddingVertical: 5,
-  },
-  equalBtnText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs, color: Colors.primary },
-  memberRow: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
-    backgroundColor: Colors.surfaceLowest, borderRadius: Radius.md,
-    padding: Spacing.md, marginBottom: Spacing.sm, ...Shadows.sm,
-  },
-  memberAvatar: {
-    width: 36, height: 36, borderRadius: Radius.full,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  memberAvatarText: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.sm },
-  memberName: { flex: 1, fontFamily: FontFamily.bodyMedium, fontSize: FontSize.sm, color: Colors.ink },
-  memberInput: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: Colors.surfaceLow, borderRadius: Radius.sm,
-    paddingHorizontal: Spacing.sm, minWidth: 80,
-  },
-  memberRupee: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: Colors.muted },
-  memberAmountInput: {
-    fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.md,
-    color: Colors.primary, padding: Spacing.sm, minWidth: 60, textAlign: 'right',
-  },
-  pctSign: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: Colors.muted },
-  totalBar: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: Colors.surfaceLow, borderRadius: Radius.md,
-    padding: Spacing.md, marginTop: Spacing.sm,
-  },
-  totalBarLabel: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.sm, color: Colors.muted },
-  totalBarValue: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.md },
-  itemSection: { marginTop: Spacing.xl },
-  itemRow: {
-    flexDirection: 'row', gap: Spacing.sm, alignItems: 'center',
-    marginBottom: Spacing.sm,
-  },
-  itemInput: {
-    backgroundColor: Colors.surfaceLow, borderRadius: Radius.sm,
-    padding: Spacing.sm, fontFamily: FontFamily.body,
-    fontSize: FontSize.sm, color: Colors.ink,
-  },
-  ownerChip: {
-    paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radius.full,
-    backgroundColor: Colors.surfaceLow, marginRight: 6,
-  },
-  ownerChipActive: { backgroundColor: Colors.primary },
-  ownerChipText: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.xs, color: Colors.muted },
-  addItemBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
-    padding: Spacing.md, backgroundColor: Colors.primaryFixed,
-    borderRadius: Radius.md, justifyContent: 'center',
-  },
-  addItemText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.sm, color: Colors.primary },
-  summaryCard: {
-    backgroundColor: Colors.primary, borderRadius: Radius.xl,
-    padding: Spacing.xxl, alignItems: 'center', ...Shadows.lg,
-  },
-  summaryEmoji: { fontSize: 40, marginBottom: Spacing.sm },
-  summaryTitle: {
-    fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.xl,
-    color: Colors.onPrimary, marginBottom: Spacing.sm,
-  },
-  summaryTotal: {
-    fontFamily: FontFamily.displayExtraBold, fontSize: 36,
-    color: '#fff', letterSpacing: -1,
-  },
-  summaryMethod: {
-    fontFamily: FontFamily.body, fontSize: FontSize.sm,
-    color: 'rgba(255,255,255,0.6)', marginTop: 4,
-  },
-  summaryRow: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
-    backgroundColor: Colors.surfaceLowest, borderRadius: Radius.md,
-    padding: Spacing.md, marginBottom: Spacing.sm, ...Shadows.sm,
-  },
-  summaryName: { flex: 1, fontFamily: FontFamily.bodyMedium, fontSize: FontSize.md, color: Colors.ink },
-  summaryAmount: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.md, color: Colors.red },
-  waBtn: {
-    width: 32, height: 32, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#dcfce7', borderRadius: Radius.full,
-  },
-  waText: { fontSize: 16 },
-  footer: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    padding: Spacing.xl, backgroundColor: Colors.surfaceLowest,
-    borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl,
-    ...Shadows.lg,
-  },
-  nextBtn: {
-    backgroundColor: Colors.primary, borderRadius: Radius.full,
-    padding: Spacing.lg, alignItems: 'center',
-  },
-  nextBtnDisabled: { opacity: 0.4 },
-  nextBtnText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.lg, color: Colors.onPrimary },
-  footerRow: { flexDirection: 'row', gap: Spacing.sm },
-  backStepBtn: {
-    flex: 1, borderRadius: Radius.full, padding: Spacing.lg,
-    alignItems: 'center', backgroundColor: Colors.surfaceLow,
-  },
-  backStepText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.md, color: Colors.muted },
-  saveBtn: {
-    flex: 2, backgroundColor: Colors.greenBg, borderRadius: Radius.full,
-    padding: Spacing.lg, alignItems: 'center', ...Shadows.md,
-  },
-  saveBtnText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.lg, color: '#fff' },
-  successScreen: {
-    flex: 1, backgroundColor: Colors.surfaceLowest,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  successContent: { alignItems: 'center' },
-  successEmoji: { fontSize: 64, marginBottom: Spacing.lg },
-  successTitle: {
-    fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.xxl, color: Colors.ink,
-  },
-  successSub: {
-    fontFamily: FontFamily.body, fontSize: FontSize.md,
-    color: Colors.muted, marginTop: Spacing.sm,
-  },
-});
+function makeStyles(colors: ThemeColors, shadows: any) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    header: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md,
+    },
+    backBtn: {
+      width: 40, height: 40, borderRadius: Radius.full,
+      backgroundColor: colors.surfaceLowest, alignItems: 'center', justifyContent: 'center',
+      ...shadows.sm,
+    },
+    headerTitle: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg, color: colors.ink },
+    stepRow: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+      paddingHorizontal: Spacing.xl, marginBottom: Spacing.xl, gap: 0,
+    },
+    stepItem: { flexDirection: 'row', alignItems: 'center' },
+    stepDot: {
+      width: 32, height: 32, borderRadius: Radius.full,
+      backgroundColor: colors.surfaceHigh, alignItems: 'center', justifyContent: 'center',
+    },
+    stepDotActive: { backgroundColor: colors.primaryFixed },
+    stepDotCurrent: { backgroundColor: colors.primary },
+    stepNum: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: colors.muted },
+    stepNumActive: { color: colors.primary },
+    stepLine: { width: 48, height: 2, backgroundColor: colors.surfaceHigh, marginHorizontal: 4 },
+    stepLineActive: { backgroundColor: colors.primaryFixed },
+    stepContent: { paddingHorizontal: Spacing.xl },
+    stepTitle: {
+      fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.xxl,
+      color: colors.ink, marginBottom: Spacing.xl,
+    },
+    fieldLabel: {
+      fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs, color: colors.muted,
+      textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: Spacing.sm,
+    },
+    emojiRow: { marginBottom: Spacing.sm },
+    emojiBtn: {
+      width: 44, height: 44, borderRadius: Radius.md,
+      backgroundColor: colors.surfaceLow, alignItems: 'center', justifyContent: 'center',
+      marginRight: Spacing.sm,
+    },
+    emojiBtnActive: { backgroundColor: colors.primaryFixed, borderWidth: 2, borderColor: colors.primary },
+    emojiText: { fontSize: 22 },
+    input: {
+      backgroundColor: colors.surfaceLow, borderRadius: Radius.md,
+      padding: Spacing.lg, fontFamily: FontFamily.bodyMedium,
+      fontSize: FontSize.md, color: colors.ink,
+    },
+    amountRow: { flexDirection: 'row', alignItems: 'center' },
+    rupeeSign: {
+      fontFamily: FontFamily.displayExtraBold, fontSize: 36,
+      color: colors.surfaceHigh, marginRight: Spacing.sm,
+    },
+    amountInput: {
+      fontFamily: FontFamily.displayExtraBold, fontSize: 44,
+      color: colors.primary, flex: 1, letterSpacing: -1,
+    },
+    methodGrid: {
+      flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm,
+    },
+    methodCard: {
+      width: '47%', alignItems: 'center', gap: Spacing.sm,
+      paddingVertical: Spacing.lg, backgroundColor: colors.surfaceLowest,
+      borderRadius: Radius.lg, ...shadows.sm,
+    },
+    methodCardActive: { backgroundColor: colors.primary },
+    methodLabel: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.sm, color: colors.muted },
+    methodLabelActive: { color: colors.onPrimary, fontFamily: FontFamily.bodySemiBold },
+    membersSection: { marginTop: Spacing.xl },
+    membersSectionHeader: {
+      flexDirection: 'row', justifyContent: 'space-between',
+      alignItems: 'center', marginBottom: Spacing.sm,
+    },
+    equalBtn: {
+      flexDirection: 'row', alignItems: 'center', gap: 4,
+      backgroundColor: colors.primaryFixed, borderRadius: Radius.full,
+      paddingHorizontal: 10, paddingVertical: 5,
+    },
+    equalBtnText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.xs, color: colors.primary },
+    memberRow: {
+      flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
+      backgroundColor: colors.surfaceLowest, borderRadius: Radius.md,
+      padding: Spacing.md, marginBottom: Spacing.sm, ...shadows.sm,
+    },
+    memberAvatar: {
+      width: 36, height: 36, borderRadius: Radius.full,
+      alignItems: 'center', justifyContent: 'center',
+    },
+    memberAvatarText: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.sm },
+    memberName: { flex: 1, fontFamily: FontFamily.bodyMedium, fontSize: FontSize.sm, color: colors.ink },
+    memberInput: {
+      flexDirection: 'row', alignItems: 'center',
+      backgroundColor: colors.surfaceLow, borderRadius: Radius.sm,
+      paddingHorizontal: Spacing.sm, minWidth: 80,
+    },
+    memberRupee: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: colors.muted },
+    memberAmountInput: {
+      fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.md,
+      color: colors.primary, padding: Spacing.sm, minWidth: 60, textAlign: 'right',
+    },
+    pctSign: { fontFamily: FontFamily.bodyBold, fontSize: FontSize.sm, color: colors.muted },
+    totalBar: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+      backgroundColor: colors.surfaceLow, borderRadius: Radius.md,
+      padding: Spacing.md, marginTop: Spacing.sm,
+    },
+    totalBarLabel: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.sm, color: colors.muted },
+    totalBarValue: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.md },
+    itemSection: { marginTop: Spacing.xl },
+    itemRow: {
+      flexDirection: 'row', gap: Spacing.sm, alignItems: 'center',
+      marginBottom: Spacing.sm,
+    },
+    itemInput: {
+      backgroundColor: colors.surfaceLow, borderRadius: Radius.sm,
+      padding: Spacing.sm, fontFamily: FontFamily.body,
+      fontSize: FontSize.sm, color: colors.ink,
+    },
+    ownerChip: {
+      paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radius.full,
+      backgroundColor: colors.surfaceLow, marginRight: 6,
+    },
+    ownerChipActive: { backgroundColor: colors.primary },
+    ownerChipText: { fontFamily: FontFamily.bodyMedium, fontSize: FontSize.xs, color: colors.muted },
+    addItemBtn: {
+      flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
+      padding: Spacing.md, backgroundColor: colors.primaryFixed,
+      borderRadius: Radius.md, justifyContent: 'center',
+    },
+    addItemText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.sm, color: colors.primary },
+    summaryCard: {
+      backgroundColor: colors.primary, borderRadius: Radius.xl,
+      padding: Spacing.xxl, alignItems: 'center', ...shadows.lg,
+    },
+    summaryEmoji: { fontSize: 40, marginBottom: Spacing.sm },
+    summaryTitle: {
+      fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.xl,
+      color: colors.onPrimary, marginBottom: Spacing.sm,
+    },
+    summaryTotal: {
+      fontFamily: FontFamily.displayExtraBold, fontSize: 36,
+      color: colors.onPrimary, letterSpacing: -1,
+    },
+    summaryMethod: {
+      fontFamily: FontFamily.body, fontSize: FontSize.sm,
+      color: colors.onPrimary + '99', marginTop: 4,
+    },
+    summaryRow: {
+      flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+      backgroundColor: colors.surfaceLowest, borderRadius: Radius.md,
+      padding: Spacing.md, marginBottom: Spacing.sm, ...shadows.sm,
+    },
+    summaryName: { flex: 1, fontFamily: FontFamily.bodyMedium, fontSize: FontSize.md, color: colors.ink },
+    summaryAmount: { fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.md, color: colors.red },
+    waBtn: {
+      width: 32, height: 32, alignItems: 'center', justifyContent: 'center',
+      backgroundColor: colors.greenContainer, borderRadius: Radius.full,
+    },
+    waText: { fontSize: 16 },
+    footer: {
+      position: 'absolute', bottom: 0, left: 0, right: 0,
+      padding: Spacing.xl, backgroundColor: colors.surfaceLowest,
+      borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl,
+      ...shadows.lg,
+    },
+    nextBtn: {
+      backgroundColor: colors.primary, borderRadius: Radius.full,
+      padding: Spacing.lg, alignItems: 'center', ...shadows.md,
+    },
+    nextBtnDisabled: { backgroundColor: colors.surfaceHigh },
+    nextBtnText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.lg, color: colors.onPrimary },
+    validationHint: {
+      fontFamily: FontFamily.body, fontSize: FontSize.xs,
+      color: colors.red, textAlign: 'center', marginTop: Spacing.sm,
+    },
+    footerRow: { flexDirection: 'row', gap: Spacing.sm },
+    backStepBtn: {
+      flex: 1, borderRadius: Radius.full, padding: Spacing.lg,
+      alignItems: 'center', backgroundColor: colors.surfaceLow,
+    },
+    backStepText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.md, color: colors.muted },
+    saveBtn: {
+      flex: 2, backgroundColor: colors.greenBg, borderRadius: Radius.full,
+      padding: Spacing.lg, alignItems: 'center', ...shadows.md,
+    },
+    saveBtnText: { fontFamily: FontFamily.bodySemiBold, fontSize: FontSize.lg, color: '#fff' },
+    successScreen: {
+      flex: 1, backgroundColor: colors.surfaceLowest,
+      alignItems: 'center', justifyContent: 'center',
+    },
+    successContent: { alignItems: 'center' },
+    successEmoji: { fontSize: 64, marginBottom: Spacing.lg },
+    successTitle: {
+      fontFamily: FontFamily.displayExtraBold, fontSize: FontSize.xxl, color: colors.ink,
+    },
+    successSub: {
+      fontFamily: FontFamily.body, fontSize: FontSize.md,
+      color: colors.muted, marginTop: Spacing.sm,
+    },
+  });
+}

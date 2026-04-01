@@ -1,15 +1,18 @@
 import React from 'react';
-import { View, Text, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { useTranslation } from 'react-i18next';
 
-import { Colors, FontFamily, FontSize } from '@theme/tokens';
+import { FontFamily } from '@theme/tokens';
+import { useTheme } from '@theme/ThemeContext';
+import { useAuthStore } from '@store/useAuthStore';
 
-// Screens
+// Screens — Main
 import HomeScreen from '@screens/HomeScreen';
 import ContactDetailScreen from '@screens/ContactDetailScreen';
 import AddTransactionScreen from '@screens/AddTransactionScreen';
@@ -19,87 +22,140 @@ import SplitBillScreen from '@screens/SplitBillScreen';
 import SplitGroupScreen from '@screens/SplitGroupScreen';
 import SplitLoanScreen from '@screens/SplitLoanScreen';
 import SettingsScreen from '@screens/SettingsScreen';
+import ReportsScreen from '@screens/ReportsScreen';
+import UpgradeScreen from '@screens/UpgradeScreen';
+
+// Screens — Auth
+import PhoneScreen from '@screens/PhoneScreen';
+import OTPScreen from '@screens/OTPScreen';
+import GuestSetupScreen from '@screens/GuestSetupScreen';
+
+// ─── Param lists ──────────────────────────────────────────────────────────────
+
+export type AuthStackParamList = {
+  Phone: undefined;
+  OTP: { phone: string };
+  GuestSetup: undefined;
+};
 
 export type RootStackParamList = {
   MainTabs: undefined;
   ContactDetail: { contactId: string; contactName: string };
-  AddTransaction: { contactId?: string; contactName?: string };
+  AddTransaction: { contactId?: string; contactName?: string; defaultType?: 'gave' | 'received' };
   AddContact: undefined;
   Split: undefined;
   SplitBill: undefined;
   SplitGroup: undefined;
   SplitLoan: undefined;
   Settings: undefined;
+  Upgrade: undefined;
 };
 
 export type TabParamList = {
   Home: undefined;
   Contacts: undefined;
   Split: undefined;
+  Reports: undefined;
   Settings: undefined;
 };
 
+// ─── Stacks ───────────────────────────────────────────────────────────────────
+
+const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
-function TabIcon({
-  name,
-  focused,
-  ionName,
-}: {
-  name?: string;
-  focused: boolean;
-  ionName?: string;
-}) {
-  const color = focused ? Colors.primary : Colors.mutedLight;
-  if (ionName) {
-    return <Ionicons name={ionName as any} size={22} color={color} />;
-  }
+// ─── Tab icon helper ──────────────────────────────────────────────────────────
+
+// ─── Tab icon helper ──────────────────────────────────────────────────────────
+
+function TabIcon({ name, focused, ionName }: { name?: string; focused: boolean; ionName?: string }) {
+  const { colors } = useTheme();
+  const color = focused ? colors.primary : colors.mutedLight;
+  if (ionName) return <Ionicons name={ionName as any} size={22} color={color} />;
   return <MaterialIcons name={name as any} size={22} color={color} />;
 }
+
+// ─── Custom Tab Bar ───────────────────────────────────────────────────────────
+
+function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+
+  const tabs = [
+    { name: 'Home',     icon: 'home',        label: t('nav.home') },
+    { name: 'Contacts', icon: 'people',      label: t('nav.contacts') },
+    { name: 'Split',    icon: 'call-split',  label: t('nav.split') },
+    { name: 'Reports',  icon: 'bar-chart',   label: t('nav.reports') },
+    { name: 'Settings', icon: 'settings',    label: t('nav.settings') },
+  ];
+
+  return (
+    <View style={[
+      tabBarStyle.bar,
+      {
+        paddingBottom: insets.bottom || 6,
+        backgroundColor: colors.cardBg,
+        shadowColor: colors.primary,
+        borderTopColor: colors.border,
+      },
+    ]}>
+      {state.routes.map((route, index) => {
+        const focused = state.index === index;
+        const tab = tabs[index];
+        const color = focused ? colors.primary : colors.mutedLight;
+
+        return (
+          <TouchableOpacity
+            key={route.key}
+            style={tabBarStyle.item}
+            onPress={() => navigation.navigate(route.name)}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons name={tab.icon as any} size={22} color={color} />
+            <Text style={[tabBarStyle.label, { color }]}>{tab.label}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+const tabBarStyle = StyleSheet.create({
+  bar: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 0, left: 0, right: 0,
+    elevation: 8,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  item: {
+    flex: 1,
+    alignItems: 'center',
+    paddingTop: 10,
+    paddingBottom: 6,
+    gap: 3,
+  },
+  label: {
+    fontFamily: FontFamily.bodySemiBold,
+    fontSize: 10,
+  },
+});
+
+// ─── Bottom tabs ──────────────────────────────────────────────────────────────
 
 function BottomTabs() {
   const { t } = useTranslation();
 
   return (
     <Tab.Navigator
+      tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          position: 'absolute',
-          backgroundColor:
-            Platform.OS === 'ios' ? 'transparent' : 'rgba(255,255,255,0.94)',
-          borderTopWidth: 0,
-          elevation: 0,
-          height: Platform.OS === 'ios' ? 84 : 64,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 8,
-          paddingTop: 8,
-        },
-        tabBarBackground: () =>
-          Platform.OS === 'ios' ? (
-            <BlurView
-              intensity={80}
-              tint="light"
-              style={{
-                flex: 1,
-                borderTopLeftRadius: 28,
-                borderTopRightRadius: 28,
-                overflow: 'hidden',
-                borderTopWidth: 0,
-                shadowColor: Colors.primary,
-                shadowOffset: { width: 0, height: -4 },
-                shadowOpacity: 0.06,
-                shadowRadius: 16,
-              }}
-            />
-          ) : null,
-        tabBarLabelStyle: {
-          fontFamily: FontFamily.bodySemiBold,
-          fontSize: 10,
-          marginTop: 2,
-        },
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.mutedLight,
       }}
     >
       <Tab.Screen
@@ -133,6 +189,16 @@ function BottomTabs() {
         }}
       />
       <Tab.Screen
+        name="Reports"
+        component={ReportsScreen}
+        options={{
+          tabBarLabel: t('nav.reports'),
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name="bar-chart" focused={focused} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
@@ -146,58 +212,98 @@ function BottomTabs() {
   );
 }
 
+// ─── Auth navigator ───────────────────────────────────────────────────────────
+
+function AuthNavigator() {
+  const { colors } = useTheme();
+  return (
+    <AuthStack.Navigator
+      screenOptions={{
+        headerShown: false,
+        animation: 'slide_from_right',
+        contentStyle: { backgroundColor: colors.surfaceLowest },
+      }}
+    >
+      <AuthStack.Screen name="Phone" component={PhoneScreen} />
+      <AuthStack.Screen name="OTP" component={OTPScreen} />
+      <AuthStack.Screen name="GuestSetup" component={GuestSetupScreen} />
+    </AuthStack.Navigator>
+  );
+}
+
+// ─── Main navigator ───────────────────────────────────────────────────────────
+
+function MainNavigator() {
+  const { colors } = useTheme();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        animation: 'slide_from_right',
+        contentStyle: { backgroundColor: colors.surface },
+      }}
+    >
+      <Stack.Screen name="MainTabs" component={BottomTabs} />
+      <Stack.Screen
+        name="ContactDetail"
+        component={ContactDetailScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="AddTransaction"
+        component={AddTransactionScreen}
+        options={{ animation: 'slide_from_bottom', presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="AddContact"
+        component={AddContactScreen}
+        options={{ animation: 'slide_from_bottom', presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="Split"
+        component={SplitScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="SplitBill"
+        component={SplitBillScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="SplitGroup"
+        component={SplitGroupScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="SplitLoan"
+        component={SplitLoanScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="Upgrade"
+        component={UpgradeScreen}
+        options={{ animation: 'slide_from_bottom', presentation: 'modal' }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+// ─── Root navigator — switches based on auth session ─────────────────────────
+
 export default function AppNavigator() {
+  const session = useAuthStore((s) => s.session);
+  const isGuest = useAuthStore((s) => s.isGuest);
+
+  const isLoggedIn = !!session || isGuest;
+
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          animation: 'slide_from_right',
-          contentStyle: { backgroundColor: Colors.surface },
-        }}
-      >
-        <Stack.Screen name="MainTabs" component={BottomTabs} />
-        <Stack.Screen
-          name="ContactDetail"
-          component={ContactDetailScreen}
-          options={{ animation: 'slide_from_right' }}
-        />
-        <Stack.Screen
-          name="AddTransaction"
-          component={AddTransactionScreen}
-          options={{ animation: 'slide_from_bottom', presentation: 'modal' }}
-        />
-        <Stack.Screen
-          name="AddContact"
-          component={AddContactScreen}
-          options={{ animation: 'slide_from_bottom', presentation: 'modal' }}
-        />
-        <Stack.Screen
-          name="Split"
-          component={SplitScreen}
-          options={{ animation: 'slide_from_right' }}
-        />
-        <Stack.Screen
-          name="SplitBill"
-          component={SplitBillScreen}
-          options={{ animation: 'slide_from_right' }}
-        />
-        <Stack.Screen
-          name="SplitGroup"
-          component={SplitGroupScreen}
-          options={{ animation: 'slide_from_right' }}
-        />
-        <Stack.Screen
-          name="SplitLoan"
-          component={SplitLoanScreen}
-          options={{ animation: 'slide_from_right' }}
-        />
-        <Stack.Screen
-          name="Settings"
-          component={SettingsScreen}
-          options={{ animation: 'slide_from_right' }}
-        />
-      </Stack.Navigator>
+      {isLoggedIn ? <MainNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }

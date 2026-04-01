@@ -29,7 +29,10 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "brandId": "default"
+      "brandId": "default",
+      "eas": {
+        "projectId": "800a4d79-2ff3-4f99-b790-fb0c1ff3f0e6"
+      }
     }
   }
 }
