@@ -10,7 +10,7 @@ import { Platform } from 'react-native';
 const RC_ANDROID_KEY = 'test_aKSIAIedLiEFeEwBCmPvKVVPmWG'; // Test key — replace with real key after Play Console setup
 const RC_IOS_KEY     = 'test_aKSIAIedLiEFeEwBCmPvKVVPmWG'; // Same test key for now
 
-export const ENTITLEMENT_PRO = 'pro';
+export const ENTITLEMENT_PRO = 'UdharBook Pro';
 
 // ─── Init — call once at app boot ────────────────────────────────────────────
 export async function initPurchases(userId?: string) {
