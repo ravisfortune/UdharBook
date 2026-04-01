@@ -14,6 +14,7 @@ import { useAuthStore } from './src/store/useAuthStore';
 import { useProStore } from './src/store/useProStore';
 import AppNavigator from './src/navigation';
 import { requestNotificationPermission, setupNotificationChannel } from './src/services/notifications';
+import { initPurchases } from './src/services/purchases';
 
 export default function App() {
   const [fontsLoaded] = useAppFonts();
@@ -31,6 +32,7 @@ export default function App() {
         await loadSavedLocale(); // Restore user's language preference
         await initializeAuth();  // Restore Supabase session
         await initializePro();   // Load Pro status from AsyncStorage
+        await initPurchases();   // RevenueCat init
         await setupNotificationChannel();
         await requestNotificationPermission();
         setDbReady(true);

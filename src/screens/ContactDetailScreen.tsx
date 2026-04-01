@@ -17,6 +17,7 @@ import { useTheme } from '@theme/ThemeContext';
 import { ThemeColors } from '@theme/themes';
 import { useTransactionStore } from '@store/useTransactionStore';
 import { useContactStore } from '@store/useContactStore';
+import { useProStore } from '@store/useProStore';
 import { getNetBalance, Transaction } from '@db/transactions';
 import { RootStackParamList } from '@/navigation';
 import { formatCurrency } from '@utils/currency';
@@ -26,6 +27,7 @@ import { fadeInDown, staggerDelay } from '@utils/animations';
 import ContactRow from '@components/ContactRow';
 import { sendWhatsAppReminder } from '@services/whatsapp';
 import { scheduleContactReminder } from '@services/notifications';
+import { exportContactPDF, exportContactCSV } from '@services/exportService';
 
 type RouteT = RouteProp<RootStackParamList, 'ContactDetail'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -44,6 +46,7 @@ export default function ContactDetailScreen() {
 
   const { transactions, loading, loadForContact } = useTransactionStore();
   const { contacts, removeContact } = useContactStore();
+  const { canAccess } = useProStore();
   const [netBalance, setNetBalance] = useState(0);
   const contact = contacts.find((c) => c.id === contactId);
 
@@ -132,6 +135,36 @@ export default function ContactDetailScreen() {
       .catch(() => Alert.alert('Error', 'Reminder set nahi ho saka'));
   }
 
+  function handleExport() {
+    if (!canAccess('pdfExport')) {
+      navigation.navigate('Upgrade');
+      return;
+    }
+    if (transactions.length === 0) {
+      Alert.alert('No data', 'Koi transaction nahi hai export karne ke liye.');
+      return;
+    }
+    Alert.alert('Export karo', 'Format choose karo', [
+      {
+        text: 'PDF',
+        onPress: () => exportContactPDF(
+          contactName ?? 'Contact',
+          contact?.phone,
+          netBalance,
+          transactions,
+        ).catch(() => {}),
+      },
+      {
+        text: 'CSV (Excel)',
+        onPress: () => exportContactCSV(
+          contactName ?? 'Contact',
+          transactions,
+        ).catch(() => {}),
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  }
+
   function handleDelete() {
     Alert.alert(
       t('contact.deleteContact'),
@@ -164,9 +197,14 @@ export default function ContactDetailScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <MaterialIcons name="arrow-back" size={22} color={colors.ink} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleDelete} style={styles.deleteBtn}>
-          <MaterialIcons name="delete-outline" size={22} color={colors.red} />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity onPress={handleExport} style={styles.headerIconBtn}>
+            <MaterialIcons name="download" size={22} color={colors.muted} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleDelete} style={styles.deleteBtn}>
+            <MaterialIcons name="delete-outline" size={22} color={colors.red} />
+          </TouchableOpacity>
+        </View>
       </Animated.View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -377,6 +415,14 @@ function makeStyles(colors: ThemeColors, shadows: any) {
       paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md,
     },
     backBtn: {
+      width: 40, height: 40, borderRadius: Radius.full,
+      backgroundColor: colors.cardBg, alignItems: 'center', justifyContent: 'center',
+      ...shadows.sm,
+    },
+    headerRight: {
+      flexDirection: 'row', gap: Spacing.sm, alignItems: 'center',
+    },
+    headerIconBtn: {
       width: 40, height: 40, borderRadius: Radius.full,
       backgroundColor: colors.cardBg, alignItems: 'center', justifyContent: 'center',
       ...shadows.sm,

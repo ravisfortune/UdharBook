@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet,
+  StyleSheet, Alert, ActivityIndicator,
 } from 'react-native';
+import { PurchasesPackage } from 'react-native-purchases';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
@@ -12,6 +13,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FontFamily, FontSize, Spacing, Radius } from '@theme/tokens';
 import { useTheme } from '@theme/ThemeContext';
 import { ThemeColors } from '@theme/themes';
+import { getPackages, purchasePackage, restorePurchases } from '@services/purchases';
+import { useProStore } from '@store/useProStore';
 
 const FREE_FEATURES = [
   { label: 'Up to 50 contacts', included: true },
@@ -42,6 +45,62 @@ export default function UpgradeScreen() {
   const navigation = useNavigation();
   const { colors, shadows } = useTheme();
   const styles = useMemo(() => makeStyles(colors, shadows), [colors]);
+  const { activatePro } = useProStore();
+
+  const [packages, setPackages] = useState<PurchasesPackage[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState<'monthly' | 'yearly'>('yearly');
+
+  useEffect(() => {
+    getPackages().then(setPackages).catch(() => {});
+  }, []);
+
+  const monthlyPkg = packages.find((p) => p.identifier.includes('monthly'));
+  const yearlyPkg  = packages.find((p) => p.identifier.includes('yearly'));
+  const activePkg  = selected === 'monthly' ? monthlyPkg : yearlyPkg;
+
+  async function handlePurchase() {
+    if (!activePkg) {
+      // RevenueCat not configured yet — show coming soon
+      Alert.alert('Coming Soon', 'Pro abhi launch nahi hua hai. Launch hone pe notify karenge! 🚀');
+      return;
+    }
+    try {
+      setLoading(true);
+      const isPro = await purchasePackage(activePkg);
+      if (isPro) {
+        await activatePro();
+        Alert.alert('Welcome to Pro! ⚡', 'Sab features unlock ho gaye hain.', [
+          { text: 'Let\'s go!', onPress: () => navigation.goBack() },
+        ]);
+      }
+    } catch (e: any) {
+      if (!e?.userCancelled) {
+        Alert.alert('Error', 'Purchase complete nahi ho saka. Dobara try karo.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleRestore() {
+    try {
+      setLoading(true);
+      const isPro = await restorePurchases();
+      if (isPro) {
+        await activatePro();
+        Alert.alert('Restored! ✅', 'Aapka Pro subscription restore ho gaya.', [
+          { text: 'OK', onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert('No Purchase Found', 'Koi active Pro subscription nahi mila.');
+      }
+    } catch {
+      Alert.alert('Error', 'Restore nahi ho saka. Dobara try karo.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -64,11 +123,24 @@ export default function UpgradeScreen() {
             <Text style={styles.heroTitle}>UdharBook Pro</Text>
             <Text style={styles.heroSub}>Sab kuch unlock karo — koi limit nahi</Text>
 
-            <View style={styles.priceRow}>
-              <Text style={styles.price}>₹99</Text>
-              <Text style={styles.pricePer}>/month</Text>
+            {/* Plan toggle */}
+            <View style={styles.planToggle}>
+              <TouchableOpacity
+                style={[styles.planBtn, selected === 'monthly' && styles.planBtnActive]}
+                onPress={() => setSelected('monthly')}
+              >
+                <Text style={[styles.planBtnText, selected === 'monthly' && styles.planBtnTextActive]}>Monthly</Text>
+                <Text style={[styles.planBtnPrice, selected === 'monthly' && styles.planBtnTextActive]}>₹99/mo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.planBtn, selected === 'yearly' && styles.planBtnActive]}
+                onPress={() => setSelected('yearly')}
+              >
+                <View style={styles.saveBadge}><Text style={styles.saveBadgeTxt}>SAVE 33%</Text></View>
+                <Text style={[styles.planBtnText, selected === 'yearly' && styles.planBtnTextActive]}>Yearly</Text>
+                <Text style={[styles.planBtnPrice, selected === 'yearly' && styles.planBtnTextActive]}>₹799/yr</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.priceYear}>ya ₹799/year (33% off)</Text>
           </LinearGradient>
         </Animated.View>
 
@@ -111,10 +183,17 @@ export default function UpgradeScreen() {
 
       {/* CTA */}
       <Animated.View entering={FadeInDown.delay(500)} style={styles.footer}>
-        <TouchableOpacity style={styles.ctaBtn} onPress={() => {}}>
-          <Text style={styles.ctaBtnTxt}>Coming Soon — Notify Me</Text>
+        <TouchableOpacity style={styles.ctaBtn} onPress={handlePurchase} disabled={loading}>
+          {loading
+            ? <ActivityIndicator color={colors.onPrimary} />
+            : <Text style={styles.ctaBtnTxt}>
+                {selected === 'yearly' ? 'Get Pro — ₹799/year' : 'Get Pro — ₹99/month'}
+              </Text>
+          }
         </TouchableOpacity>
-        <Text style={styles.ctaNote}>Abhi sabhi features free hain. Pro launch hone pe notify karenge.</Text>
+        <TouchableOpacity onPress={handleRestore} disabled={loading}>
+          <Text style={styles.ctaNote}>Pehle kharida hai? Restore karo</Text>
+        </TouchableOpacity>
       </Animated.View>
     </SafeAreaView>
   );
@@ -158,6 +237,29 @@ function makeStyles(colors: ThemeColors, shadows: any) {
       fontFamily: FontFamily.body, fontSize: FontSize.xs,
       color: 'rgba(255,255,255,0.6)', marginTop: 4,
     },
+    planToggle: {
+      flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.lg, width: '100%',
+    },
+    planBtn: {
+      flex: 1, borderRadius: Radius.lg, padding: Spacing.md,
+      alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.15)',
+      borderWidth: 1.5, borderColor: 'transparent',
+    },
+    planBtnActive: {
+      backgroundColor: 'rgba(255,255,255,0.25)', borderColor: '#fff',
+    },
+    planBtnText: {
+      fontFamily: FontFamily.bodyMedium, fontSize: FontSize.sm, color: 'rgba(255,255,255,0.75)',
+    },
+    planBtnPrice: {
+      fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.md, color: 'rgba(255,255,255,0.75)', marginTop: 2,
+    },
+    planBtnTextActive: { color: '#fff' },
+    saveBadge: {
+      backgroundColor: '#fbbf24', borderRadius: Radius.full,
+      paddingHorizontal: 6, paddingVertical: 2, marginBottom: 4,
+    },
+    saveBadgeTxt: { fontFamily: FontFamily.bodyBold, fontSize: 9, color: '#78350f' },
     section: { marginBottom: Spacing.xl },
     sectionTitle: {
       fontFamily: FontFamily.displaySemiBold, fontSize: FontSize.lg,

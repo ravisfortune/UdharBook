@@ -92,6 +92,7 @@ export interface MonthlyStats {
   month: string; // 'YYYY-MM'
   gave: number;
   received: number;
+  count: number;
 }
 
 export async function getMonthlyStats(months = 6): Promise<MonthlyStats[]> {
@@ -100,7 +101,8 @@ export async function getMonthlyStats(months = 6): Promise<MonthlyStats[]> {
     SELECT
       strftime('%Y-%m', date / 1000, 'unixepoch') AS month,
       SUM(CASE WHEN type = 'gave' THEN amount ELSE 0 END) AS gave,
-      SUM(CASE WHEN type = 'received' THEN amount ELSE 0 END) AS received
+      SUM(CASE WHEN type = 'received' THEN amount ELSE 0 END) AS received,
+      COUNT(*) AS count
     FROM transactions
     WHERE deleted = 0
       AND date >= strftime('%s', 'now', '-${months} months') * 1000
@@ -153,6 +155,14 @@ export async function getOverallStats(): Promise<{ totalGave: number; totalRecei
     totalReceived: stats?.totalReceived ?? 0,
     totalContacts: contactCount?.totalContacts ?? 0,
   };
+}
+
+export async function getTotalTransactionCount(): Promise<number> {
+  const db = await getDB();
+  const row = await db.getFirstAsync<{ count: number }>(
+    `SELECT COUNT(*) AS count FROM transactions WHERE deleted = 0`
+  );
+  return row?.count ?? 0;
 }
 
 export async function deleteTransaction(id: string): Promise<void> {

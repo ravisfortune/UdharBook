@@ -24,6 +24,7 @@ import SplitLoanScreen from '@screens/SplitLoanScreen';
 import SettingsScreen from '@screens/SettingsScreen';
 import ReportsScreen from '@screens/ReportsScreen';
 import UpgradeScreen from '@screens/UpgradeScreen';
+import EMICalculatorScreen from '@screens/EMICalculatorScreen';
 
 // Screens — Auth
 import PhoneScreen from '@screens/PhoneScreen';
@@ -49,6 +50,7 @@ export type RootStackParamList = {
   SplitLoan: undefined;
   Settings: undefined;
   Upgrade: undefined;
+  EMICalculator: undefined;
 };
 
 export type TabParamList = {
@@ -288,6 +290,11 @@ function MainNavigator() {
         name="Upgrade"
         component={UpgradeScreen}
         options={{ animation: 'slide_from_bottom', presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="EMICalculator"
+        component={EMICalculatorScreen}
+        options={{ animation: 'slide_from_right' }}
       />
     </Stack.Navigator>
   );

@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UdharBook — Play Store Launch Checklist</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+    }
+
+    .container { max-width: 720px; margin: 0 auto; }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 20px;
+      padding: 36px 32px;
+      margin-bottom: 32px;
+      color: white;
+    }
+    .header-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .header h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .header p { font-size: 14px; opacity: 0.8; }
+
+    /* Progress */
+    .progress-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+    .progress-bar-bg {
+      background: #e2e8f0;
+      border-radius: 99px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 10px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      transition: width 0.4s ease;
+    }
+    .progress-count {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 8px;
+      text-align: right;
+    }
+
+    /* Phase */
+    .phase { margin-bottom: 28px; }
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .phase-icon {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .phase-title { font-size: 16px; font-weight: 700; color: #1e293b; }
+    .phase-sub { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Checklist item */
+    .item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      cursor: pointer;
+      transition: background 0.15s;
+      user-select: none;
+    }
+    .item:last-child { border-bottom: none; }
+    .item:hover { background: #f8fafc; }
+    .item.done { background: #f0fdf4; }
+    .item.done:hover { background: #dcfce7; }
+
+    .checkbox {
+      width: 22px; height: 22px;
+      border-radius: 7px;
+      border: 2px solid #cbd5e1;
+      flex-shrink: 0;
+      margin-top: 1px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .item.done .checkbox {
+      background: #22c55e;
+      border-color: #22c55e;
+    }
+    .checkmark {
+      display: none;
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .item.done .checkmark { display: block; }
+
+    .item-body { flex: 1; }
+    .item-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1e293b;
+      line-height: 1.4;
+    }
+    .item.done .item-text {
+      text-decoration: line-through;
+      color: #86efac;
+    }
+    .item-note {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+    .item.done .item-note { color: #bbf7d0; }
+
+    /* Tags */
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border-radius: 99px;
+      padding: 2px 8px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .tag-free { background: #dcfce7; color: #16a34a; }
+    .tag-paid { background: #fef3c7; color: #d97706; }
+    .tag-code { background: #ede9fe; color: #7c3aed; }
+    .tag-required { background: #fee2e2; color: #dc2626; }
+
+    /* Info box */
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #1d4ed8;
+      line-height: 1.6;
+    }
+    .info-box strong { font-weight: 700; }
+
+    /* Warning box */
+    .warn-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #92400e;
+      line-height: 1.6;
+    }
+
+    /* Timeline */
+    .timeline {
+      background: white;
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-top: 8px;
+    }
+    .timeline-title {
+      font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 16px;
+    }
+    .tl-row {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 12px;
+    }
+    .tl-row:last-child { margin-bottom: 0; }
+    .tl-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .tl-step { font-size: 13px; color: #475569; flex: 1; }
+    .tl-time {
+      font-size: 12px; font-weight: 600; color: #6366f1;
+      background: #ede9fe; border-radius: 99px; padding: 2px 10px;
+    }
+
+    .reset-btn {
+      display: block;
+      margin: 32px auto 0;
+      background: none;
+      border: 1px solid #cbd5e1;
+      border-radius: 99px;
+      padding: 8px 24px;
+      font-size: 13px;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .reset-btn:hover { border-color: #94a3b8; color: #64748b; }
+
+    @media (max-width: 480px) {
+      .header { padding: 24px 20px; }
+      .header h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-badge">🚀 Launch Guide</div>
+    <h1>Play Store Checklist</h1>
+    <p>UdharBook ko Google Play Store pe publish karne ka complete guide</p>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-card">
+    <div class="progress-label">
+      <span>Overall Progress</span>
+      <span id="pct">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="bar" style="width:0%"></div>
+    </div>
+    <div class="progress-count" id="count">0 of 0 completed</div>
+  </div>
+
+  <!-- Phase 1 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-icon" style="background:#ede9fe">🏦</div>
+      <div>
+        <div class="phase-title">Phase 1 — Developer Account</div>
+        <div class="phase-sub">Ek baar karna hai · $25 one-time fee</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Google Play Console account banao <span class="tag tag-paid">$25</span></div>
+          <div class="item-note">play.google.com/console — credit/debit card se pay karo</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Developer profile complete karo</div>
+          <div class="item-note">Name, address, phone number, website (optional)</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Developer name decide karo</div>
+          <div class="item-note">Jo Play Store pe dikhega — e.g. "UdharBook Labs" ya apna naam</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Payment profile setup karo</div>
+          <div class="item-note">Google ko subscription revenue transfer karne ke liye bank account add karo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-icon" style="background:#fef3c7">📋</div>
+      <div>
+        <div class="phase-title">Phase 2 — App Setup</div>
+        <div class="phase-sub">Play Console mein app create karo</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Play Console mein "Create app" karo</div>
+          <div class="item-note">App name: UdharBook · Language: Hindi/English · Type: App · Free</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Privacy Policy banao <span class="tag tag-required">Required</span></div>
+          <div class="item-note">privacypolicygenerator.info ya app-privacy-policy.com pe free mein banao — URL host karo</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Content rating questionnaire fill karo</div>
+          <div class="item-note">Play Console → Policy → App content → Ratings — Finance app select karo</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Data safety form fill karo <span class="tag tag-required">Required</span></div>
+          <div class="item-note">Kya data collect karte ho: name, phone, financial data — Supabase ke baare mein batao</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Target audience set karo</div>
+          <div class="item-note">18+ · India · Finance category</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 3 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-icon" style="background:#dcfce7">🎨</div>
+      <div>
+        <div class="phase-title">Phase 3 — Store Listing Assets</div>
+        <div class="phase-sub">Screenshots, icon, description</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">App icon (512×512 PNG) <span class="tag tag-required">Required</span></div>
+          <div class="item-note">Already hai assets/brands/default/icon.png — resize karo 512×512</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Phone screenshots (minimum 2) <span class="tag tag-required">Required</span></div>
+          <div class="item-note">HomeScreen, ContactDetail, Reports, Settings ke screenshots lo · 16:9 ya 9:16</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Feature graphic (1024×500 PNG/JPG)</div>
+          <div class="item-note">Canva.com pe "Google Play Feature Graphic" template se banao · Free</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Short description (80 chars max)</div>
+          <div class="item-note">e.g. "Hisaab kitab ka sabse aasaan tarika — udhar track karo"</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Full description (4000 chars max)</div>
+          <div class="item-note">Features list, Pro benefits, Hindi + English dono mein likho</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 4 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-icon" style="background:#fee2e2">💳</div>
+      <div>
+        <div class="phase-title">Phase 4 — Subscription Setup</div>
+        <div class="phase-sub">Google Play billing + RevenueCat integration</div>
+      </div>
+    </div>
+
+    <div class="warn-box" style="margin-bottom:12px">
+      ⚠️ <strong>Important:</strong> Play Store subscriptions ke liye Razorpay <u>nahi</u> chahiye. Google apna billing system use karta hai. Revenue ka <strong>15–30% Google rakhta hai</strong> (pehle saal 15%, baad mein 30%).
+    </div>
+
+    <div class="card">
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Play Console → Monetize → Subscriptions</div>
+          <div class="item-note">Pehle ek app upload hona chahiye — subscriptions tab tab activate hota hai</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Monthly subscription create karo</div>
+          <div class="item-note">Product ID: udharbook_pro_monthly · Price: ₹99/month · Grace period: 3 days</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Yearly subscription create karo</div>
+          <div class="item-note">Product ID: udharbook_pro_yearly · Price: ₹799/year · 7-day free trial (optional)</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">RevenueCat account banao <span class="tag tag-free">Free</span></div>
+          <div class="item-note">app.revenuecat.com — $2500/month revenue tak bilkul free · Google Play billing handle karta hai</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">RevenueCat SDK install karo <span class="tag tag-code">Code</span></div>
+          <div class="item-note">npx expo install react-native-purchases · useProStore mein wire karo</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">RevenueCat ko Play Console se connect karo</div>
+          <div class="item-note">RevenueCat Dashboard → Google Play → Service Account credentials add karo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top:12px">
+      💡 <strong>RevenueCat kyun?</strong> Google Play billing API directly use karna complex hai. RevenueCat webhook, receipt validation, subscription status sab handle karta hai — tumhe sirf purchase() call karna hai.
+    </div>
+  </div>
+
+  <!-- Phase 5 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-icon" style="background:#e0f2fe">🔨</div>
+      <div>
+        <div class="phase-title">Phase 5 — Build & Upload</div>
+        <div class="phase-sub">EAS se production build banao</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">app.config.ts version check karo</div>
+          <div class="item-note">version: "1.0.0" · versionCode: 1 — har upload pe versionCode badhao</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Production build banao <span class="tag tag-code">Code</span></div>
+          <div class="item-note">npm run build:android:prod — EAS pe build hoga, .aab file milegi</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">.aab file download karo</div>
+          <div class="item-note">EAS dashboard se ya build complete hone pe link milega</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Play Console → Production → New release</div>
+          <div class="item-note">.aab file upload karo · Release notes Hindi + English mein likho</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Internal testing pehle karo (recommended)</div>
+          <div class="item-note">Production se pehle Internal track pe upload karo — 5 testers add karo, turant available hota hai</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 6 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-icon" style="background:#f0fdf4">🚀</div>
+      <div>
+        <div class="phase-title">Phase 6 — Review & Launch</div>
+        <div class="phase-sub">Google review — 3 se 7 din</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Sab required sections "Complete" dikha rahe hain</div>
+          <div class="item-note">Play Console mein dashboard pe green checkmarks aane chahiye</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Review ke liye submit karo</div>
+          <div class="item-note">"Send for review" button — pehli baar 3–7 din lagenge</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Pre-launch report check karo</div>
+          <div class="item-note">Google automatic testing karta hai — crashes dekho</div>
+        </div>
+      </div>
+      <div class="item" onclick="toggle(this)">
+        <div class="checkbox"><span class="checkmark">✓</span></div>
+        <div class="item-body">
+          <div class="item-text">Approve hone ke baad "Rollout to production" karo</div>
+          <div class="item-note">20% rollout se start karo — sab theek ho toh 100% karo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-icon" style="background:#f1f5f9">⏱️</div>
+      <div>
+        <div class="phase-title">Timeline</div>
+        <div class="phase-sub">Total estimate: ~1 week</div>
+      </div>
+    </div>
+    <div class="timeline">
+      <div class="tl-row">
+        <div class="tl-dot" style="background:#6366f1"></div>
+        <div class="tl-step">Account setup + App create</div>
+        <div class="tl-time">1–2 din</div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-dot" style="background:#8b5cf6"></div>
+        <div class="tl-step">Store listing + Assets (screenshots, banner)</div>
+        <div class="tl-time">1 din</div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-dot" style="background:#a78bfa"></div>
+        <div class="tl-step">Subscription setup + RevenueCat integration</div>
+        <div class="tl-time">1–2 din</div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-dot" style="background:#c4b5fd"></div>
+        <div class="tl-step">EAS Build + Upload</div>
+        <div class="tl-time">2–3 ghante</div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-dot" style="background:#22c55e"></div>
+        <div class="tl-step">Google Review</div>
+        <div class="tl-time">3–7 din</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="reset-btn" onclick="resetAll()">🔄 Reset Checklist</button>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'udharbook_checklist_v1';
+
+  function getState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+    catch { return {}; }
+  }
+
+  function saveState(state) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function getItemId(el) {
+    const items = Array.from(document.querySelectorAll('.item'));
+    return 'item_' + items.indexOf(el);
+  }
+
+  function toggle(el) {
+    el.classList.toggle('done');
+    const state = getState();
+    state[getItemId(el)] = el.classList.contains('done');
+    saveState(state);
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const all = document.querySelectorAll('.item');
+    const done = document.querySelectorAll('.item.done');
+    const pct = all.length ? Math.round((done.length / all.length) * 100) : 0;
+    document.getElementById('bar').style.width = pct + '%';
+    document.getElementById('pct').textContent = pct + '%';
+    document.getElementById('count').textContent = done.length + ' of ' + all.length + ' completed';
+  }
+
+  function resetAll() {
+    if (!confirm('Sab checkmarks reset karo?')) return;
+    document.querySelectorAll('.item.done').forEach(el => el.classList.remove('done'));
+    saveState({});
+    updateProgress();
+  }
+
+  // Restore state on load
+  window.addEventListener('DOMContentLoaded', () => {
+    const state = getState();
+    const items = document.querySelectorAll('.item');
+    items.forEach((el, i) => {
+      if (state['item_' + i]) el.classList.add('done');
+    });
+    updateProgress();
+  });
+</script>
+</body>
+</html>

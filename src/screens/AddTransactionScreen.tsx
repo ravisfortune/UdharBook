@@ -14,22 +14,27 @@ import { useTheme } from '@theme/ThemeContext';
 import { ThemeColors } from '@theme/themes';
 import { useTransactionStore } from '@store/useTransactionStore';
 import { useContactStore } from '@store/useContactStore';
+import { useProStore } from '@store/useProStore';
+import { getTotalTransactionCount } from '@db/transactions';
 import { RootStackParamList } from '@/navigation';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useShakeAnimation, fadeInDown } from '@utils/animations';
 import { formatCurrency } from '@utils/currency';
 
 type RouteT = RouteProp<RootStackParamList, 'AddTransaction'>;
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 type TxnType = 'gave' | 'received';
 
 export default function AddTransactionScreen() {
   const { t } = useTranslation();
-  const navigation = useNavigation();
+  const navigation = useNavigation<Nav>();
   const route = useRoute<RouteT>();
   const { colors, shadows } = useTheme();
   const styles = useMemo(() => makeStyles(colors, shadows), [colors]);
 
   const { addTransaction } = useTransactionStore();
   const { contacts } = useContactStore();
+  const { canAddTransaction } = useProStore();
 
   const [txnType, setTxnType] = useState<TxnType>(route.params?.defaultType ?? 'gave');
   const [amount, setAmount] = useState('');
@@ -47,6 +52,11 @@ export default function AddTransactionScreen() {
   async function handleSave() {
     if (!parsedAmount || parsedAmount <= 0) { shake(); return; }
     if (!selectedContactId) { shake(); return; }
+    const totalCount = await getTotalTransactionCount();
+    if (!canAddTransaction(totalCount)) {
+      navigation.navigate('Upgrade');
+      return;
+    }
     setSaving(true);
     await addTransaction({
       contact_id: selectedContactId,

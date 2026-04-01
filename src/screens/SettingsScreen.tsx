@@ -35,7 +35,7 @@ export default function SettingsScreen() {
   const { colors, shadows } = useTheme();
   const styles = useMemo(() => makeStyles(colors, shadows), [colors]);
   const [previewTheme, setPreviewTheme] = useState<ThemeId | null>(null);
-  const { isPro, proEnabled, canUseTheme } = useProStore();
+  const { isPro, proEnabled, canUseTheme, canAccess } = useProStore();
 
   function handleSignOut() {
     Alert.alert(
@@ -183,8 +183,26 @@ export default function SettingsScreen() {
           </ScrollView>
         </Animated.View>
 
-        {/* About */}
+        {/* Tools */}
         <Animated.View entering={fadeInDown(240)} style={styles.section}>
+          <Text style={styles.sectionLabel}>Tools</Text>
+          <TouchableOpacity style={styles.toolRow} onPress={() => canAccess('emiCalculator') ? navigation.navigate('EMICalculator') : navigation.navigate('Upgrade')}>
+            <View style={[styles.toolIcon, { backgroundColor: colors.primaryFixed }]}>
+              <Text style={{ fontSize: 18 }}>🧮</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cardText}>EMI Calculator</Text>
+              <Text style={styles.cardSub}>Loan ki monthly EMI calculate karo</Text>
+            </View>
+            {canAccess('emiCalculator')
+              ? <MaterialIcons name="chevron-right" size={20} color={colors.mutedLight} />
+              : <MaterialIcons name="lock" size={18} color={colors.primary} />
+            }
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* About */}
+        <Animated.View entering={fadeInDown(300)} style={styles.section}>
           <Text style={styles.sectionLabel}>{t('settings.about')}</Text>
           <View style={styles.card}>
             <Text style={styles.cardText}>UdharBook</Text>
@@ -193,7 +211,7 @@ export default function SettingsScreen() {
         </Animated.View>
 
         {/* Sign out */}
-        <Animated.View entering={fadeInDown(300)} style={styles.section}>
+        <Animated.View entering={fadeInDown(360)} style={styles.section}>
           <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
             <MaterialIcons name="logout" size={18} color={colors.red} />
             <Text style={styles.signOutText}>
@@ -324,6 +342,15 @@ function makeStyles(colors: ThemeColors, shadows: any) {
       fontFamily: FontFamily.bodySemiBold,
       fontSize: FontSize.md,
       color: colors.red,
+    },
+    toolRow: {
+      flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+      backgroundColor: colors.cardBg, borderRadius: Radius.md,
+      padding: Spacing.lg, ...shadows.sm,
+    },
+    toolIcon: {
+      width: 44, height: 44, borderRadius: Radius.md,
+      alignItems: 'center', justifyContent: 'center',
     },
     proBanner: {
       flexDirection: 'row',

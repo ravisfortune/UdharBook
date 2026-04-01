@@ -1,7 +1,7 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, RefreshControl, Keyboard, TouchableWithoutFeedback,
+  StyleSheet, RefreshControl, Keyboard, TouchableWithoutFeedback, Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,11 +15,13 @@ import { FontFamily, FontSize, Spacing, Radius } from '@theme/tokens';
 import { useTheme } from '@theme/ThemeContext';
 import { ThemeColors } from '@theme/themes';
 import { useContactStore } from '@store/useContactStore';
+import { useProStore } from '@store/useProStore';
 import { RootStackParamList } from '@/navigation';
 import BalanceHeroCard from '@components/BalanceHeroCard';
 import ContactRow from '@components/ContactRow';
 import SplitKaroBanner from '@components/SplitKaroBanner';
 import { usePulseAnimation } from '@utils/animations';
+import { exportAllContactsPDF, exportAllContactsCSV } from '@services/exportService';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -27,11 +29,43 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation<Nav>();
   const { contacts, totalMilna, totalDena, loading, loadContacts } = useContactStore();
+  const { canAccess } = useProStore();
   const { animStyle: fabStyle, pulse } = usePulseAnimation();
   const insets = useSafeAreaInsets();
   const tabBarHeight = 56 + (insets.bottom || 8);
   const { colors, shadows } = useTheme();
   const styles = useMemo(() => makeStyles(colors, shadows), [colors]);
+  const [exporting, setExporting] = useState(false);
+
+  function handleExport() {
+    if (!canAccess('pdfExport')) {
+      navigation.navigate('Upgrade');
+      return;
+    }
+    if (contacts.length === 0) {
+      Alert.alert('No data', 'Koi contact nahi hai export karne ke liye.');
+      return;
+    }
+    Alert.alert('Export karo', 'Format choose karo', [
+      {
+        text: 'PDF',
+        onPress: async () => {
+          setExporting(true);
+          await exportAllContactsPDF(contacts, totalMilna, totalDena).catch(() => {});
+          setExporting(false);
+        },
+      },
+      {
+        text: 'CSV (Excel)',
+        onPress: async () => {
+          setExporting(true);
+          await exportAllContactsCSV(contacts).catch(() => {});
+          setExporting(false);
+        },
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  }
 
   useFocusEffect(
     useCallback(() => { loadContacts(); }, [])
@@ -50,12 +84,14 @@ export default function HomeScreen() {
           <Text style={styles.appName}>UdharBook</Text>
           <Text style={styles.tagline}>Hisaab saaf, dosti saaf</Text>
         </View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Settings')}
-          style={styles.settingsBtn}
-        >
-          <MaterialIcons name="settings" size={20} color={colors.muted} />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity onPress={handleExport} style={styles.settingsBtn} disabled={exporting}>
+            <MaterialIcons name="download" size={20} color={colors.muted} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={styles.settingsBtn}>
+            <MaterialIcons name="settings" size={20} color={colors.muted} />
+          </TouchableOpacity>
+        </View>
       </Animated.View>
 
       <ScrollView
@@ -153,6 +189,11 @@ function makeStyles(colors: ThemeColors, shadows: any) {
       fontSize: FontSize.xs,
       color: colors.mutedLight,
       marginTop: 2,
+    },
+    headerRight: {
+      flexDirection: 'row',
+      gap: Spacing.sm,
+      alignItems: 'center',
     },
     settingsBtn: {
       width: 40,

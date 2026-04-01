@@ -5,6 +5,7 @@ import { supabase } from '@services/supabase';
 import { signOut as authSignOut, getSession } from '@services/auth';
 import { restoreFromCloud, triggerSync } from '@services/sync';
 import { useContactStore } from '@store/useContactStore';
+import { identifyUser, resetPurchasesUser } from '@services/purchases';
 
 const GUEST_KEY = 'udharbook_guest_name';
 
@@ -49,13 +50,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
       set({ session, user: session?.user ?? null, isGuest: false });
       if (event === 'SIGNED_IN' && session?.user) {
         const userId = session.user.id;
+        identifyUser(userId).catch(() => {});
         set({ isRestoring: true });
         restoreFromCloud(userId)
           .catch(() => {})
           .finally(() => {
             set({ isRestoring: false });
             triggerSync(userId);
-            // Refresh UI stores so screens show restored data immediately
             useContactStore.getState().loadContacts();
           });
       }
@@ -78,6 +79,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       return;
     }
     await authSignOut();
+    resetPurchasesUser().catch(() => {});
     set({ session: null, user: null, isGuest: false, guestName: null });
   },
 }));
